@@ -21,8 +21,8 @@ dist/
 
 # Go modules and cache
 vendor/
-*.mod
-*.sum
+# *.mod
+# *.sum
 
 # Logs
 *.log
