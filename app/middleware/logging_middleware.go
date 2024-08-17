@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"lessgo/internal/core/middleware"
 	"log"
 	"net/http"
+
+	"github.com/hokamsingh/lessgo/internal/core/middleware"
 )
 
 type LoggingMiddleare struct {

@@ -2,13 +2,13 @@ package test
 
 import (
 	"io/ioutil"
-	"lessgo/internal/core/controller"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/gorilla/mux"
+	"github.com/hokamsingh/lessgo/internal/core/controller"
 )
 
 type TestController struct {

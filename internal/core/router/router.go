@@ -1,10 +1,10 @@
 package router
 
 import (
-	"lessgo/internal/core/middleware"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/hokamsingh/lessgo/internal/core/middleware"
 )
 
 type Router struct {

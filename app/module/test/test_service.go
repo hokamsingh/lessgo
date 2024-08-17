@@ -1,8 +1,9 @@
 package test
 
 import (
-	"lessgo/internal/core/service"
 	"log"
+
+	"github.com/hokamsingh/lessgo/internal/core/service"
 )
 
 type TestServiceInterface interface {

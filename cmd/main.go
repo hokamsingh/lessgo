@@ -1,13 +1,14 @@
 package main
 
 import (
-	"lessgo/app/middleware"
-	"lessgo/app/module/test"
-	"lessgo/internal/core/config"
-	"lessgo/internal/core/controller"
-	"lessgo/internal/core/di"
-	"lessgo/internal/core/router"
 	"log"
+
+	"github.com/hokamsingh/lessgo/app/middleware"
+	"github.com/hokamsingh/lessgo/app/module/test"
+	"github.com/hokamsingh/lessgo/internal/core/config"
+	"github.com/hokamsingh/lessgo/internal/core/controller"
+	"github.com/hokamsingh/lessgo/internal/core/di"
+	"github.com/hokamsingh/lessgo/internal/core/router"
 )
 
 func main() {
