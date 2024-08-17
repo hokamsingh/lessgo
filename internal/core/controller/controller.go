@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// BASE
 type Controller interface {
 	RegisterRoutes(mux *mux.Router)
 }
