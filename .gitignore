@@ -1,0 +1,40 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output of the go coverage tool
+*.out
+
+# IDE and Editor specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Go workspace and build files
+bin/
+build/
+dist/
+
+# Go modules and cache
+vendor/
+*.mod
+*.sum
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Ignore the `node_modules` folder if you use any Node.js for frontend
+node_modules/
+
+# MacOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
