@@ -86,3 +86,7 @@ func ServeStatic(pathPrefix, dir string) http.Handler {
 func GetFolderPath(folderName string) (string, error) {
 	return utils.GetFolderPath(folderName)
 }
+
+func RegisterModuleControllers(r *router.Router, container *di.Container, module module.Module) error {
+	return utils.RegisterModuleControllers(r, container, module)
+}
