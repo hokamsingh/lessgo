@@ -115,3 +115,9 @@ func (r *Router) withLogging(next http.HandlerFunc) http.HandlerFunc {
 		next(w, r)
 	}
 }
+
+// ServeStatic creates a file server handler to serve static files
+func ServeStatic(pathPrefix, dir string) http.Handler {
+	fs := http.FileServer(http.Dir(dir))
+	return http.StripPrefix(pathPrefix, fs)
+}
