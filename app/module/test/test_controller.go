@@ -8,11 +8,12 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
-	"github.com/hokamsingh/lessgo/internal/core/controller"
+	core "github.com/hokamsingh/lessgo/pkg/lessgo"
 )
 
 type TestController struct {
-	controller.BaseController
+	// controller.BaseController
+	core.BaseController
 	TestService TestServiceInterface
 }
 

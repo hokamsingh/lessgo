@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/hokamsingh/lessgo/internal/core/middleware"
+	core "github.com/hokamsingh/lessgo/pkg/lessgo"
 )
 
 type LoggingMiddleare struct {
-	middleware.BaseMiddleware
+	core.BaseMiddleware
 }
 
 func NewLoggingMiddleware() *LoggingMiddleare {

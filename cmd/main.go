@@ -5,21 +5,19 @@ import (
 
 	"github.com/hokamsingh/lessgo/app/middleware"
 	"github.com/hokamsingh/lessgo/app/module/test"
-	"github.com/hokamsingh/lessgo/internal/core/config"
 	"github.com/hokamsingh/lessgo/internal/core/controller"
-	"github.com/hokamsingh/lessgo/internal/core/di"
-	"github.com/hokamsingh/lessgo/internal/core/router"
+	core "github.com/hokamsingh/lessgo/pkg/lessgo"
 )
 
 func main() {
 	// Load Configuration
-	cfg := config.LoadConfig()
+	cfg := core.LoadConfig()
 
 	// Initialize Router
-	r := router.NewRouter()
+	r := core.NewRouter()
 
 	// new Container init
-	container := di.NewContainer()
+	container := core.NewContainer()
 
 	// register services in container
 	testService := test.NewTestService()

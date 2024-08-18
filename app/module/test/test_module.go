@@ -1,8 +1,11 @@
 package test
 
-import "github.com/hokamsingh/lessgo/internal/core/module"
+import (
+	"github.com/hokamsingh/lessgo/internal/core/module"
+	core "github.com/hokamsingh/lessgo/pkg/lessgo"
+)
 
-func NewTestModule() *module.Module {
+func NewTestModule() *core.Module {
 	// Create the service first
 	testService := NewTestService()
 

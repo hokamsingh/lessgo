@@ -3,7 +3,7 @@ package test
 import (
 	"log"
 
-	"github.com/hokamsingh/lessgo/internal/core/service"
+	core "github.com/hokamsingh/lessgo/pkg/lessgo"
 )
 
 type TestServiceInterface interface {
@@ -11,7 +11,7 @@ type TestServiceInterface interface {
 }
 
 type TestService struct {
-	service.BaseService
+	core.Service
 }
 
 func NewTestService() *TestService {
