@@ -27,15 +27,21 @@ func (f *FileUploadMiddleware) Handle(next http.Handler) http.Handler {
 		}
 
 		// Get file from form data
-		file, _, err := r.FormFile("file")
+		file, fileHeader, err := r.FormFile("file")
 		if err != nil {
 			http.Error(w, "Unable to get file from form data", http.StatusBadRequest)
 			return
 		}
 		defer file.Close()
 
-		// Create file on server
-		filePath := filepath.Join(f.uploadDir, generateFileName())
+		// Extract file extension
+		ext := filepath.Ext(fileHeader.Filename)
+		if ext == "" {
+			ext = ".bin" // Default extension if none provided
+		}
+
+		// Create file on server with timestamp and original extension
+		filePath := filepath.Join(f.uploadDir, generateFileName()+ext)
 		destFile, err := os.Create(filePath)
 		if err != nil {
 			http.Error(w, "Unable to save file", http.StatusInternalServerError)
@@ -56,5 +62,5 @@ func (f *FileUploadMiddleware) Handle(next http.Handler) http.Handler {
 
 // generateFileName generates a unique file name with timestamp
 func generateFileName() string {
-	return time.Now().Format("20060102150405") + ".uploaded" // Customize filename generation as needed
+	return time.Now().Format("20060102150405")
 }
