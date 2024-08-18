@@ -1,4 +1,4 @@
-package core
+package LessGo
 
 import (
 	"github.com/hokamsingh/lessgo/internal/core/config"
