@@ -22,6 +22,7 @@ type Module = module.Module
 type Router = router.Router
 type BaseService = service.BaseService
 type Service = service.Service
+type CORSOptions = middleware.CORSOptions
 
 // Expose middleware types and functions
 type CORSMiddleware = middleware.CORSMiddleware
