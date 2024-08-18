@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 	"net/http"
+	"path/filepath"
 	"runtime/debug"
 	"time"
 
@@ -36,6 +37,15 @@ func NewRouter(options ...Option) *Router {
 	// Apply default CORS options
 	// r.Use(middleware.NewCORSMiddleware(defaultCORSOptions))
 	return r
+}
+
+// SubRouter creates a subrouter with the given path prefix
+func (r *Router) SubRouter(pathPrefix string) *Router {
+	subRouter := &Router{
+		Mux:        r.Mux.PathPrefix(pathPrefix).Subrouter(),
+		middleware: []middleware.Middleware{},
+	}
+	return subRouter
 }
 
 // WithCORS enables CORS middleware with specific options
@@ -118,6 +128,13 @@ func (r *Router) withLogging(next http.HandlerFunc) http.HandlerFunc {
 
 // ServeStatic creates a file server handler to serve static files
 func ServeStatic(pathPrefix, dir string) http.Handler {
-	fs := http.FileServer(http.Dir(dir))
+	// Resolve the absolute path for debugging
+	absPath, err := filepath.Abs(dir)
+	if err != nil {
+		log.Fatalf("Failed to resolve absolute path: %v", err)
+	}
+	log.Printf("Serving static files from: %s", absPath)
+
+	fs := http.FileServer(http.Dir(absPath))
 	return http.StripPrefix(pathPrefix, fs)
 }

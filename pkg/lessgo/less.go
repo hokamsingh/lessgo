@@ -11,6 +11,7 @@ import (
 	"github.com/hokamsingh/lessgo/internal/core/module"
 	"github.com/hokamsingh/lessgo/internal/core/router"
 	"github.com/hokamsingh/lessgo/internal/core/service"
+	"github.com/hokamsingh/lessgo/internal/utils"
 )
 
 // Expose core types
@@ -80,4 +81,8 @@ func WithFileUpload(uploadDir string) router.Option {
 // ServeStatic creates a file server handler to serve static files
 func ServeStatic(pathPrefix, dir string) http.Handler {
 	return router.ServeStatic(pathPrefix, dir)
+}
+
+func GetFolderPath(folderName string) (string, error) {
+	return utils.GetFolderPath(folderName)
 }

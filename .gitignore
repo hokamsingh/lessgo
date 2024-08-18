@@ -18,6 +18,9 @@
 bin/
 build/
 dist/
+app/
+cmd/
+uploads/
 
 # Go modules and cache
 vendor/
