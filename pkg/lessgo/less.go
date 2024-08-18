@@ -35,8 +35,8 @@ func NewModule(name string, controllers []interface{}, services []interface{}) *
 
 type Router = router.Router
 
-func NewRouter() *Router {
-	return router.NewRouter()
+func NewRouter(options []router.Option) *Router {
+	return router.NewRouter(options...)
 }
 
 type BaseService = service.BaseService
