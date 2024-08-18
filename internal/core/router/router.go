@@ -34,7 +34,7 @@ func NewRouter(options ...Option) *Router {
 		opt(r)
 	}
 	// Apply default CORS options
-	r.Use(middleware.NewCORSMiddleware(defaultCORSOptions))
+	// r.Use(middleware.NewCORSMiddleware(defaultCORSOptions))
 	return r
 }
 
