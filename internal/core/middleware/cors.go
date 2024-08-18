@@ -21,11 +21,22 @@ func NewCORSMiddleware(options CORSOptions) *CORSMiddleware {
 	return &CORSMiddleware{options: options}
 }
 
-// Handle sets the CORS headers on the response
+// Handle sets the CORS headers on the response and restricts methods
 func (cm *CORSMiddleware) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		allowedMethods := cm.getAllowedMethods()
+		allowedMethodsMap := make(map[string]bool)
+		for _, method := range allowedMethods {
+			allowedMethodsMap[method] = true
+		}
+
+		if _, ok := allowedMethodsMap[r.Method]; !ok && r.Method != http.MethodOptions {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
 		w.Header().Set("Access-Control-Allow-Origin", cm.getAllowedOrigins())
-		w.Header().Set("Access-Control-Allow-Methods", cm.getAllowedMethods())
+		w.Header().Set("Access-Control-Allow-Methods", cm.getAllowedMethodsHeader())
 		w.Header().Set("Access-Control-Allow-Headers", cm.getAllowedHeaders())
 
 		if r.Method == http.MethodOptions {
@@ -44,11 +55,15 @@ func (cm *CORSMiddleware) getAllowedOrigins() string {
 	return stringJoin(cm.options.AllowedOrigins, ", ")
 }
 
-func (cm *CORSMiddleware) getAllowedMethods() string {
+func (cm *CORSMiddleware) getAllowedMethods() []string {
 	if len(cm.options.AllowedMethods) == 0 {
-		return "GET, POST, PUT, DELETE, OPTIONS"
+		return []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	}
-	return stringJoin(cm.options.AllowedMethods, ", ")
+	return cm.options.AllowedMethods
+}
+
+func (cm *CORSMiddleware) getAllowedMethodsHeader() string {
+	return stringJoin(cm.getAllowedMethods(), ", ")
 }
 
 func (cm *CORSMiddleware) getAllowedHeaders() string {
@@ -69,6 +84,7 @@ func stringJoin(elems []string, sep string) string {
 	return result
 }
 
+// NewCorsOptions creates a new CORSOptions instance
 func NewCorsOptions(origins []string, methods []string, headers []string) *CORSOptions {
 	return &CORSOptions{
 		AllowedOrigins: origins,
