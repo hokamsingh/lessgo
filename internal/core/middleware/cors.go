@@ -68,3 +68,11 @@ func stringJoin(elems []string, sep string) string {
 	}
 	return result
 }
+
+func NewCorsOptions(origins []string, methods []string, headers []string) *CORSOptions {
+	return &CORSOptions{
+		AllowedOrigins: origins,
+		AllowedMethods: methods,
+		AllowedHeaders: headers,
+	}
+}
