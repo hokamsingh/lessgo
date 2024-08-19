@@ -28,14 +28,13 @@ func GetFolderPath(folderName string) (string, error) {
 	return folderPath, nil
 }
 
-func RegisterModuleControllers(r *router.Router, container *di.Container, module module.Module) error {
-	for _, ctrl := range module.Controllers {
-		if c, ok := ctrl.(controller.Controller); ok {
-			// Inject dependencies
-			container.Inject(c)
-			// Register routes
-			c.RegisterRoutes(r.Mux)
+// registerModuleRoutes is a helper function to register routes for a module.
+func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface{}) error {
+	return container.Invoke(func(module *module.Module) {
+		for _, ctrl := range module.Controllers {
+			if c, ok := ctrl.(controller.Controller); ok {
+				c.RegisterRoutes(r.Mux)
+			}
 		}
-	}
-	return nil
+	})
 }
