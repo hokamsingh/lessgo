@@ -4,6 +4,7 @@ go 1.22.5
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/lpernett/godotenv v0.0.0-20230527005122-0de1d4c5ef5e
+	github.com/joho/godotenv v1.5.1
+	github.com/robfig/cron/v3 v3.0.1
 	go.uber.org/dig v1.18.0
 )

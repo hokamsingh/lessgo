@@ -3,30 +3,32 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 
-	"github.com/lpernett/godotenv"
+	"github.com/joho/godotenv"
 )
 
-type Config struct {
-	ServerPort string
-	Env        string
-	JwtSecret  string
-}
+type Config map[string]string
 
-func LoadConfig() *Config {
+func LoadConfig() Config {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("No .env file found: %v", err)
 	}
 
-	return &Config{
-		ServerPort: getEnv("SERVER_PORT", "8080"),
-		Env:        getEnv("ENV", "development"),
-		JwtSecret:  getEnv("JWT_SECRET", "secret"),
+	config := make(Config)
+
+	for _, env := range os.Environ() {
+		pair := strings.SplitN(env, "=", 2)
+		if len(pair) == 2 {
+			config[pair[0]] = pair[1]
+		}
 	}
+
+	return config
 }
 
-func getEnv(key, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
+func (c Config) Get(key, defaultValue string) string {
+	if value, exists := c[key]; exists {
 		return value
 	}
 	return defaultValue

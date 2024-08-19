@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -104,17 +105,58 @@ func (r *Router) Start(addr string) error {
 	return http.ListenAndServe(addr, finalHandler)
 }
 
-// withErrorHandling wraps the given handler with error handling middleware
+// HTTPError represents an error with an associated HTTP status code.
+type HTTPError struct {
+	Code    int
+	Message string
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("%d - %s", e.Code, e.Message)
+}
+
+// NewHTTPError creates a new HTTPError instance.
+func NewHTTPError(code int, message string) *HTTPError {
+	return &HTTPError{
+		Code:    code,
+		Message: message,
+	}
+}
+
+/*
+withErrorHandling wraps the given HTTP handler function with centralized error handling.
+
+This middleware intercepts any panics that occur during the execution of the handler function,
+and handles them based on their type. If the panic is of type *HTTPError, it sends an HTTP response
+with the specified status code and message. For other types of panics, it logs the error and stack trace,
+and sends a generic "Internal Server Error" response.
+
+Example:
+
+	handler := r.withErrorHandling(func(w http.ResponseWriter, r *http.Request) {
+		// Example: Trigger a Bad Request error
+		panic(LessGo.NewHTTPError(http.StatusBadRequest, "Bad Request: missing parameters"))
+	})
+
+	// Use the handler in your router
+	r.Mux.Handle("/example", handler)
+*/
 func (r *Router) withErrorHandling(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Printf("An error occurred: %v", err)
-				log.Printf("Stack trace:\n%s\n", debug.Stack())
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				switch e := err.(type) {
+				case *HTTPError:
+					log.Printf("HTTP error occurred: %v", e)
+					http.Error(w, e.Message, e.Code)
+				default:
+					log.Printf("An unexpected error occurred: %v", err)
+					log.Printf("Stack trace:\n%s\n", debug.Stack())
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				}
 			}
 		}()
-		next(w, r)
+		next(w, req)
 	}
 }
 

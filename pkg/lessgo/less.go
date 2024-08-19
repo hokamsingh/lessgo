@@ -34,7 +34,7 @@ type FileUploadMiddleware = middleware.FileUploadMiddleware
 // LoadConfig loads the configuration
 func LoadConfig() config.Config {
 	config := config.LoadConfig()
-	return *config
+	return config
 }
 
 // NewContainer creates a new dependency injection container
