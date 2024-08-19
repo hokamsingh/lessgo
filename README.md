@@ -1,0 +1,62 @@
+---
+
+## 🛠️ LessGo Framework Release
+
+We are excited to announce the latest release of the **LessGo** framework! This release introduces several powerful features and enhancements to make your Go development experience even more robust and efficient.
+
+### 🚀 New Features
+
+- **Enhanced Dependency Injection (DI)**:
+  - **Conditional Bindings**: Register dependencies based on specific conditions.
+  - **Scoped Services**: Manage services with different lifetimes and scopes.
+  - **Named Dependencies**: Support for naming dependencies for more granular control.
+
+- **Dynamic Configuration Management**:
+  - **Factory Pattern**: Implement dynamic configuration management with factories to handle various application environments and requirements.
+
+- **Inbuilt Error Handling**:
+  - **Custom Error Responses**: Integrate a flexible error handling system that returns appropriate HTTP responses based on the error type.
+  - **Detailed Logging**: Capture detailed error logs and stack traces for better debugging.
+
+- **Job Scheduler Integration**:
+  - **Built-in Scheduler**: Utilize an advanced job scheduling library for managing periodic tasks and background jobs seamlessly.
+
+- **JSON Response Handling**:
+  - **Automatic JSON Parsing**: Simplify the process of parsing and responding with JSON data.
+  - **Custom JSON Encoding**: Encode and decode JSON responses with integrated error handling.
+
+- **Advanced Data Validation**:
+  - **Strict Validation**: Ensure data integrity by validating incoming requests against predefined models.
+  - **Dynamic Key Checks**: Verify that all required fields are present in the request payload.
+
+### 📚 Documentation & Examples
+
+- **Enhanced Documentation**: Comprehensive guides and examples to help you get started with the new features and integrations.
+- **Code Examples**: Practical examples demonstrating how to use the new features in real-world applications.
+
+### 🛠️ Improvements & Fixes
+
+- **Performance Enhancements**: Optimizations for better performance and reduced resource usage.
+- **Bug Fixes**: Various bug fixes and stability improvements to ensure a smoother development experience.
+
+### 📦 Installation & Upgrade
+
+To get started with the latest version of LessGo, update your dependencies using:
+
+```sh
+go get github.com/hokamsingh/lessgo@latest
+```
+
+For detailed upgrade instructions and migration guides, please refer to our [documentation](#).
+
+### 🙌 Acknowledgments
+
+We would like to thank our contributors and community for their support and feedback. Your contributions have been invaluable in shaping the LessGo framework.
+
+---
+
+For any questions, issues, or feedback, please visit our [GitHub repository](https://github.com/hokamsingh/lessgo) or join our [community discussions](#).
+
+Happy coding!
+
+---
