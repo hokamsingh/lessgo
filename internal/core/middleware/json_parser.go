@@ -1,19 +1,50 @@
 package middleware
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 )
+
+// OLD version
+// func JSONParser(next http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		if r.Header.Get("Content-Type") == "application/json" {
+// 			var body map[string]interface{}
+// 			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+// 				http.Error(w, "Invalid JSON", http.StatusBadRequest)
+// 				return
+// 			}
+// 			key := "jsonBody"
+// 			r = r.WithContext(context.WithValue(r.Context(), key, body))
+// 		}
+// 		next.ServeHTTP(w, r)
+// 	})
+// }
 
 func JSONParser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Content-Type") == "application/json" {
-			var body map[string]interface{}
-			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			// Read the body into a byte slice
+			bodyBytes, err := io.ReadAll(r.Body)
+			if err != nil {
 				http.Error(w, "Invalid JSON", http.StatusBadRequest)
 				return
 			}
+
+			// Restore the io.ReadCloser to its original state
+			r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+			// Decode the body into a map
+			var body map[string]interface{}
+			if err := json.Unmarshal(bodyBytes, &body); err != nil {
+				http.Error(w, "Invalid JSON", http.StatusBadRequest)
+				return
+			}
+
+			// Store the parsed JSON in the context
 			key := "jsonBody"
 			r = r.WithContext(context.WithValue(r.Context(), key, body))
 		}

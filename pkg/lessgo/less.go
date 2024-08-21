@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/hokamsingh/lessgo/internal/core/config"
+	"github.com/hokamsingh/lessgo/internal/core/context"
 	"github.com/hokamsingh/lessgo/internal/core/controller"
 	"github.com/hokamsingh/lessgo/internal/core/di"
 	"github.com/hokamsingh/lessgo/internal/core/middleware"
@@ -25,6 +26,7 @@ type Router = router.Router
 type BaseService = service.BaseService
 type Service = service.Service
 type CORSOptions = middleware.CORSOptions
+type Context = context.Context
 
 // Expose middleware types and functions
 type CORSMiddleware = middleware.CORSMiddleware
