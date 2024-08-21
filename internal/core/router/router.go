@@ -23,7 +23,7 @@ type Router struct {
 type Option func(*Router)
 
 // Default CORS options
-var defaultCORSOptions = middleware.CORSOptions{
+var _ = middleware.CORSOptions{
 	AllowedOrigins: []string{"*"},
 	AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 	AllowedHeaders: []string{"Content-Type", "Authorization"},
@@ -310,15 +310,18 @@ func (r *Router) withContext(next CustomHandler, method string) http.HandlerFunc
 //
 // Example usage:
 //
-//	http.Handle("/static/", ServeStatic("/static/", "/path/to/static/files"))
-func ServeStatic(pathPrefix, dir string) http.Handler {
-	// Resolve the absolute path for debugging
+//	 r := LessGo.NewRouter(
+//			LessGo.WithCORS(*corsOptions),
+//			LessGo.WithRateLimiter(100, 1*time.Minute),
+//			LessGo.WithJSONParser(),
+//			LessGo.WithCookieParser(),
+//		)
+//	r.ServeStatic("/static/", "/path/to/static/files"))
+func (r *Router) ServeStatic(pathPrefix, dir string) {
 	absPath, err := filepath.Abs(dir)
 	if err != nil {
 		log.Fatalf("Failed to resolve absolute path: %v", err)
 	}
-	log.Printf("Serving static files from: %s", absPath)
-
 	fs := http.FileServer(http.Dir(absPath))
-	return http.StripPrefix(pathPrefix, fs)
+	r.Mux.PathPrefix(pathPrefix).Handler(http.StripPrefix(pathPrefix, fs))
 }

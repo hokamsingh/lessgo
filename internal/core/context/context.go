@@ -4,14 +4,19 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // Context holds the request and response writer and provides utility methods.
 type Context struct {
-	Req *http.Request
-	Res http.ResponseWriter
+	Req          *http.Request
+	Res          http.ResponseWriter
+	responseSent bool // Track whether a response has been sent
 }
 
 // NewContext creates a new Context instance.
@@ -45,9 +50,38 @@ func (c *Context) GetJSONBody() (map[string]interface{}, bool) {
 //
 //	ctx.JSON(http.StatusOK, map[string]string{"message": "success"})
 func (c *Context) JSON(status int, v interface{}) {
+	if c.responseSent {
+		log.Fatal("Response already sent")
+		return
+	}
 	c.Res.Header().Set("Content-Type", "application/json")
 	c.Res.WriteHeader(status)
 	json.NewEncoder(c.Res).Encode(v)
+	c.responseSent = true
+	c.Res.(http.Flusher).Flush() // Ensures the data is sent to the client
+}
+
+// Send sends a plain text response.
+//
+// This method sets the Content-Type to text/plain and writes the provided value as a response.
+//
+// Parameters:
+//
+//	v (any): The value to send in the response. It will be converted to a string.
+//
+// Example usage:
+//
+//	ctx.Send("Hello, World!")
+func (c *Context) Send(v any) {
+	if c.responseSent {
+		log.Fatal("Response already sent")
+		return
+	}
+	c.SetHeader("Content-Type", "text/plain")
+	c.Res.WriteHeader(http.StatusOK)
+	c.Res.Write([]byte(fmt.Sprint(v)))
+	c.responseSent = true
+	c.Res.(http.Flusher).Flush() // Ensures the data is sent to the client
 }
 
 // Error sends an error response with the given status code and message.
@@ -63,9 +97,16 @@ func (c *Context) JSON(status int, v interface{}) {
 //
 //	ctx.Error(http.StatusBadRequest, "Invalid request")
 func (c *Context) Error(status int, message string) {
+	if c.responseSent {
+		log.Fatal("Response already sent")
+		return
+	}
 	c.Res.Header().Set("Content-Type", "application/json")
 	c.Res.WriteHeader(status)
 	json.NewEncoder(c.Res).Encode(map[string]string{"error": message})
+	// Close the response after sending the error
+	c.responseSent = true
+	c.Res.(http.Flusher).Flush() // Ensures the data is sent to the client
 }
 
 // Body parses the JSON request body into the provided interface.
@@ -113,6 +154,10 @@ func (c *Context) Body(v interface{}) error {
 //
 //	ctx.Redirect(http.StatusSeeOther, "/new-url")
 func (c *Context) Redirect(status int, url string) {
+	if c.responseSent {
+		log.Fatal("Response already sent")
+		return
+	}
 	http.Redirect(c.Res, c.Req, url, status)
 }
 
@@ -161,4 +206,61 @@ func (c *Context) GetCookie(name string) (string, bool) {
 		return "", false
 	}
 	return cookie.Value, true
+}
+
+// GetParam retrieves a URL parameter from the request.
+// Assumes that parameters are stored in the request context.
+func (c *Context) GetParam(name string) (string, bool) {
+	params, ok := c.GetAllParams()
+	if !ok {
+		return "", false
+	}
+	value, found := params[name]
+	return value, found
+}
+
+// GetAllParams retrieves all URL parameters from the request.
+//
+// This method returns a map containing all URL parameters with their respective values
+// and a boolean indicating whether any parameters were found.
+//
+// Returns:
+//
+//	(map[string]string, bool): A map of URL parameters and a boolean indicating if any were found.
+func (c *Context) GetAllParams() (map[string]string, bool) {
+	params := mux.Vars(c.Req)
+	if len(params) == 0 {
+		return nil, false
+	}
+	return params, true
+}
+
+// GetQuery retrieves a query parameter from the request URL.
+func (c *Context) GetQuery(name string) (string, bool) {
+	values := c.Req.URL.Query()
+	value := values.Get(name)
+	return value, value != ""
+}
+
+// GetAllQuery retrieves all query parameters as a JSON object.
+func (c *Context) GetAllQuery() (map[string]interface{}, error) {
+	queryMap := make(map[string]interface{})
+	for key, values := range c.Req.URL.Query() {
+		if len(values) > 1 {
+			queryMap[key] = values
+		} else {
+			queryMap[key] = values[0]
+		}
+	}
+	return queryMap, nil
+}
+
+// GetHeader retrieves a header value from the request.
+func (c *Context) GetHeader(name string) string {
+	return c.Req.Header.Get(name)
+}
+
+// SetHeader sets a header value for the response.
+func (c *Context) SetHeader(name, value string) {
+	c.Res.Header().Set(name, value)
 }

@@ -1,7 +1,6 @@
 package LessGo
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/hokamsingh/lessgo/internal/core/config"
@@ -80,10 +79,10 @@ func WithFileUpload(uploadDir string) router.Option {
 	return router.WithFileUpload(uploadDir)
 }
 
-// ServeStatic creates a file server handler to serve static files
-func ServeStatic(pathPrefix, dir string) http.Handler {
-	return router.ServeStatic(pathPrefix, dir)
-}
+// // ServeStatic creates a file server handler to serve static files
+// func ServeStatic(pathPrefix, dir string) http.Handler {
+// 	return router.ServeStatic(pathPrefix, dir)
+// }
 
 func GetFolderPath(folderName string) (string, error) {
 	return utils.GetFolderPath(folderName)
