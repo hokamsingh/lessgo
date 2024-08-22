@@ -88,6 +88,11 @@ func GetFolderPath(folderName string) (string, error) {
 	return utils.GetFolderPath(folderName)
 }
 
-func RegisterModuleRoutes(r *router.Router, container *di.Container, module module.Module) error {
-	return utils.RegisterModuleRoutes(container, r, module)
+func RegisterModuleRoutes(r *router.Router, container *di.Container, module module.Module) {
+	utils.RegisterModuleRoutes(container, r, module)
+}
+
+// RegisterModules iterates over a slice of modules and registers their routes.
+func RegisterModules(r *router.Router, container *di.Container, modules []module.Module) error {
+	return utils.RegisterModules(r, container, modules)
 }

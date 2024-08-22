@@ -57,10 +57,14 @@ func NewRouter(options ...Option) *Router {
 //
 //	subRouter := r.SubRouter("/api")
 //	subRouter.AddRoute("/ping", handler)
-func (r *Router) SubRouter(pathPrefix string) *Router {
+func (r *Router) SubRouter(pathPrefix string, options ...Option) *Router {
 	subRouter := &Router{
 		Mux:        r.Mux.PathPrefix(pathPrefix).Subrouter(),
-		middleware: []middleware.Middleware{},
+		middleware: append([]middleware.Middleware{}, r.middleware...),
+	}
+	// Apply options to the subrouter
+	for _, opt := range options {
+		opt(subRouter)
 	}
 	return subRouter
 }

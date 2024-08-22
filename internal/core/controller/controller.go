@@ -1,16 +1,16 @@
 package controller
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/hokamsingh/lessgo/internal/core/router"
 )
 
 // BASE
 type Controller interface {
-	RegisterRoutes(mux *mux.Router)
+	RegisterRoutes(r *router.Router)
 }
 
 type BaseController struct{}
 
-func (bc *BaseController) RegisterRoutes(mux *mux.Router) {
+func (bc *BaseController) RegisterRoutes(r *router.Router) {
 
 }

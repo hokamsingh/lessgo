@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -28,13 +30,28 @@ func GetFolderPath(folderName string) (string, error) {
 	return folderPath, nil
 }
 
-// registerModuleRoutes is a helper function to register routes for a module.
-func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface{}) error {
-	return container.Invoke(func(module *module.Module) {
+// RegisterModuleRoutes is a helper function to register routes for a module.
+// It will panic if there is an error during registration or if a controller does not implement the required interface.
+func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface{}) {
+	err := container.Invoke(func(module *module.Module) {
 		for _, ctrl := range module.Controllers {
-			if c, ok := ctrl.(controller.Controller); ok {
-				c.RegisterRoutes(r.Mux)
+			c, ok := ctrl.(controller.Controller)
+			if !ok {
+				panic(fmt.Sprintf("Controller %T does not implement controller.Controller interface", ctrl))
 			}
+			c.RegisterRoutes(r)
 		}
 	})
+	if err != nil {
+		panic(fmt.Sprintf("Container invocation failed: %v", err))
+	}
+}
+
+// RegisterModules iterates over a slice of modules and registers their routes.
+func RegisterModules(r *router.Router, container *di.Container, modules []module.Module) error {
+	for _, module := range modules {
+		RegisterModuleRoutes(container, r, module)
+		log.Print("LessGo :: Registered module ", module.Name)
+	}
+	return nil
 }
