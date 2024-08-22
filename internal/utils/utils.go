@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -33,8 +35,8 @@ func GetFolderPath(folderName string) (string, error) {
 // RegisterModuleRoutes is a helper function to register routes for a module.
 // It will panic if there is an error during registration or if a controller does not implement the required interface.
 func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface{}) {
-	err := container.Invoke(func(module *module.Module) {
-		for _, ctrl := range module.Controllers {
+	err := container.Invoke(func(module module.IModule) {
+		for _, ctrl := range module.GetControllers() {
 			c, ok := ctrl.(controller.Controller)
 			if !ok {
 				panic(fmt.Sprintf("Controller %T does not implement controller.Controller interface", ctrl))
@@ -48,10 +50,25 @@ func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface
 }
 
 // RegisterModules iterates over a slice of modules and registers their routes.
-func RegisterModules(r *router.Router, container *di.Container, modules []module.Module) error {
+func RegisterModules(r *router.Router, container *di.Container, modules []module.IModule) error {
 	for _, module := range modules {
 		RegisterModuleRoutes(container, r, module)
-		log.Print("LessGo :: Registered module ", module.Name)
+		log.Print("LessGo :: Registered module ", module.GetName())
 	}
 	return nil
+}
+
+// GenerateRandomToken generates a random unique token of the specified length in bytes
+func GenerateRandomToken(length int) (string, error) {
+	// Create a byte slice to hold the random data
+	token := make([]byte, length)
+
+	// Fill the byte slice with random data
+	_, err := rand.Read(token)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate random token: %v", err)
+	}
+
+	// Convert the random bytes to a hexadecimal string
+	return hex.EncodeToString(token), nil
 }

@@ -21,6 +21,7 @@ type Container = di.Container
 type Middleware = middleware.Middleware
 type BaseMiddleware = middleware.BaseMiddleware
 type Module = module.Module
+type IModule = module.IModule
 type Router = router.Router
 type BaseService = service.BaseService
 type Service = service.Service
@@ -97,6 +98,10 @@ func RegisterModuleRoutes(r *router.Router, container *di.Container, module modu
 }
 
 // RegisterModules iterates over a slice of modules and registers their routes.
-func RegisterModules(r *router.Router, container *di.Container, modules []module.Module) error {
+func RegisterModules(r *router.Router, container *di.Container, modules []IModule) error {
 	return utils.RegisterModules(r, container, modules)
+}
+
+func GenerateRandomToken(len int) (string, error) {
+	return utils.GenerateRandomToken(len)
 }
