@@ -178,6 +178,11 @@ func (r *Router) Start(addr string) error {
 	return http.ListenAndServe(addr, finalHandler)
 }
 
+// Start http server
+func (r *Router) Listen(addr string) error {
+	return r.Start(addr)
+}
+
 // HTTPError represents an error with an associated HTTP status code.
 type HTTPError struct {
 	Code    int
