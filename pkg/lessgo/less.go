@@ -53,6 +53,10 @@ func NewRouter(options ...router.Option) *Router {
 	return router.NewRouter(options...)
 }
 
+func App(options ...router.Option) *Router {
+	return router.NewRouter(options...)
+}
+
 // New Cors Options init
 func NewCorsOptions(origins []string, methods []string, headers []string) *CORSOptions {
 	return middleware.NewCorsOptions(origins, methods, headers)
