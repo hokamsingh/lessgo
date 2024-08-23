@@ -8,15 +8,17 @@ type IModule interface {
 
 type Module struct {
 	Name        string
+	submodules  []IModule
 	Controllers []interface{}
 	Services    []interface{}
 }
 
-func NewModule(name string, controllers []interface{}, services []interface{}) *Module {
+func NewModule(name string, controllers []interface{}, services []interface{}, submodules []IModule) *Module {
 	return &Module{
 		Name:        name,
 		Controllers: controllers,
 		Services:    services,
+		submodules:  submodules,
 	}
 }
 

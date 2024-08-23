@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -29,6 +30,23 @@ var _ = middleware.CORSOptions{
 	AllowedHeaders: []string{"Content-Type", "Authorization"},
 }
 
+var (
+	appInstance *Router
+	once        sync.Once
+)
+
+// SetAppInstance sets the singleton App instance.
+func SetAppInstance(app *Router) {
+	once.Do(func() {
+		appInstance = app
+	})
+}
+
+// GetAppInstance returns the singleton App instance.
+func GetApp() *Router {
+	return appInstance
+}
+
 // NewRouter creates a new Router with optional configuration.
 // You can pass options like WithCORS or WithJSONParser to configure the router.
 //
@@ -48,6 +66,7 @@ func NewRouter(options ...Option) *Router {
 	}
 	// Apply default CORS options
 	// r.Use(middleware.NewCORSMiddleware(defaultCORSOptions))
+	SetAppInstance(r)
 	return r
 }
 
@@ -66,6 +85,12 @@ func (r *Router) SubRouter(pathPrefix string, options ...Option) *Router {
 	for _, opt := range options {
 		opt(subRouter)
 	}
+
+	// Apply the middleware to the subrouter's Mux
+	for _, m := range subRouter.middleware {
+		subRouter.Mux.Use(m.Handle)
+	}
+
 	return subRouter
 }
 
@@ -300,7 +325,7 @@ func UnWrapCustomHandler(handler http.HandlerFunc) CustomHandler {
 //
 // Example usage:
 //
-//	r.AddRoute("/example", func(ctx *context.Context) {
+//	r.AddRoute("/example", func(ctx *LessGo.Context) {
 //		ctx.JSON(http.StatusOK, map[string]string{"message": "Hello, world!"})
 //	})
 func (r *Router) withContext(next CustomHandler, method string) http.HandlerFunc {

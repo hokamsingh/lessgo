@@ -33,6 +33,15 @@ type CORSMiddleware = middleware.CORSMiddleware
 type RateLimiterMiddleware = middleware.RateLimiter
 type FileUploadMiddleware = middleware.FileUploadMiddleware
 
+// VARS
+var (
+	app = router.GetApp()
+)
+
+func GetApp() *Router {
+	return app
+}
+
 // LoadConfig loads the configuration
 func LoadConfig() config.Config {
 	config := config.LoadConfig()
@@ -45,8 +54,8 @@ func NewContainer() *Container {
 }
 
 // NewModule creates a new module
-func NewModule(name string, controllers []interface{}, services []interface{}) *Module {
-	return module.NewModule(name, controllers, services)
+func NewModule(name string, controllers []interface{}, services []interface{}, submodules []IModule) *Module {
+	return module.NewModule(name, controllers, services, submodules)
 }
 
 // NewRouter creates a new Router with optional configuration
@@ -93,13 +102,13 @@ func GetFolderPath(folderName string) (string, error) {
 	return utils.GetFolderPath(folderName)
 }
 
-func RegisterModuleRoutes(r *router.Router, container *di.Container, module module.Module) {
-	utils.RegisterModuleRoutes(container, r, module)
+func RegisterModuleRoutes(r *router.Router, module module.Module) {
+	utils.RegisterModuleRoutes(r, &module)
 }
 
 // RegisterModules iterates over a slice of modules and registers their routes.
-func RegisterModules(r *router.Router, container *di.Container, modules []IModule) error {
-	return utils.RegisterModules(r, container, modules)
+func RegisterModules(r *router.Router, modules []IModule) error {
+	return utils.RegisterModules(r, modules)
 }
 
 func GenerateRandomToken(len int) (string, error) {

@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/hokamsingh/lessgo/internal/core/controller"
-	"github.com/hokamsingh/lessgo/internal/core/di"
 	"github.com/hokamsingh/lessgo/internal/core/module"
 	"github.com/hokamsingh/lessgo/internal/core/router"
 )
@@ -34,25 +33,35 @@ func GetFolderPath(folderName string) (string, error) {
 
 // RegisterModuleRoutes is a helper function to register routes for a module.
 // It will panic if there is an error during registration or if a controller does not implement the required interface.
-func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface{}) {
-	err := container.Invoke(func(module module.IModule) {
-		for _, ctrl := range module.GetControllers() {
-			c, ok := ctrl.(controller.Controller)
-			if !ok {
-				panic(fmt.Sprintf("Controller %T does not implement controller.Controller interface", ctrl))
-			}
-			c.RegisterRoutes(r)
+func RegisterModuleRoutes(r *router.Router, m module.IModule) {
+	for _, ctrl := range m.GetControllers() {
+		c, ok := ctrl.(controller.Controller)
+		if !ok {
+			panic(fmt.Sprintf("Controller %T does not implement controller.Controller interface", ctrl))
 		}
-	})
-	if err != nil {
-		panic(fmt.Sprintf("Container invocation failed: %v", err))
+		c.RegisterRoutes(r)
 	}
 }
 
+// func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface{}) {
+// 	err := container.Invoke(func(module module.IModule) {
+// 		for _, ctrl := range module.GetControllers() {
+// 			c, ok := ctrl.(controller.Controller)
+// 			if !ok {
+// 				panic(fmt.Sprintf("Controller %T does not implement controller.Controller interface", ctrl))
+// 			}
+// 			c.RegisterRoutes(r)
+// 		}
+// 	})
+// 	if err != nil {
+// 		panic(fmt.Sprintf("Container invocation failed: %v", err))
+// 	}
+// }
+
 // RegisterModules iterates over a slice of modules and registers their routes.
-func RegisterModules(r *router.Router, container *di.Container, modules []module.IModule) error {
+func RegisterModules(r *router.Router, modules []module.IModule) error {
 	for _, module := range modules {
-		RegisterModuleRoutes(container, r, module)
+		RegisterModuleRoutes(r, module)
 		log.Print("LessGo :: Registered module ", module.GetName())
 	}
 	return nil
