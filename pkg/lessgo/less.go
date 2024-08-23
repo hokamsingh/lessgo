@@ -12,6 +12,7 @@ import (
 	"github.com/hokamsingh/lessgo/internal/core/module"
 	"github.com/hokamsingh/lessgo/internal/core/router"
 	"github.com/hokamsingh/lessgo/internal/core/service"
+	"github.com/hokamsingh/lessgo/internal/core/websocket"
 	"github.com/hokamsingh/lessgo/internal/utils"
 )
 
@@ -28,6 +29,7 @@ type BaseService = service.BaseService
 type Service = service.Service
 type CORSOptions = middleware.CORSOptions
 type Context = context.Context
+type WebSocketServer = websocket.WebSocketServer
 
 // Expose middleware types and functions
 type CORSMiddleware = middleware.CORSMiddleware
@@ -118,4 +120,8 @@ func GenerateRandomToken(len int) (string, error) {
 
 func DiscoverModules() ([]func() IModule, error) {
 	return discovery.DiscoverModules()
+}
+
+func NewWebSocketServer() *WebSocketServer {
+	return websocket.NewWebSocketServer()
 }
