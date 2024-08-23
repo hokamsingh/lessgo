@@ -7,6 +7,7 @@ import (
 	"github.com/hokamsingh/lessgo/internal/core/context"
 	"github.com/hokamsingh/lessgo/internal/core/controller"
 	"github.com/hokamsingh/lessgo/internal/core/di"
+	"github.com/hokamsingh/lessgo/internal/core/discovery"
 	"github.com/hokamsingh/lessgo/internal/core/middleware"
 	"github.com/hokamsingh/lessgo/internal/core/module"
 	"github.com/hokamsingh/lessgo/internal/core/router"
@@ -113,4 +114,8 @@ func RegisterModules(r *router.Router, modules []IModule) error {
 
 func GenerateRandomToken(len int) (string, error) {
 	return utils.GenerateRandomToken(len)
+}
+
+func DiscoverModules() ([]func() IModule, error) {
+	return discovery.DiscoverModules()
 }
