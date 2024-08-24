@@ -3,6 +3,7 @@ package LessGo
 import (
 	"time"
 
+	"github.com/hokamsingh/lessgo/internal/core/concurrency"
 	"github.com/hokamsingh/lessgo/internal/core/config"
 	"github.com/hokamsingh/lessgo/internal/core/context"
 	"github.com/hokamsingh/lessgo/internal/core/controller"
@@ -124,4 +125,14 @@ func DiscoverModules() ([]func() IModule, error) {
 
 func NewWebSocketServer() *WebSocketServer {
 	return websocket.NewWebSocketServer()
+}
+
+// TASKS
+type TaskBuilder = concurrency.TaskBuilder
+
+const Parallel = 0
+const Sequential = 1
+
+func NewTaskBuilder(mode int) *TaskBuilder {
+	return concurrency.NewTaskBuilder(concurrency.ExecutionMode(mode))
 }
