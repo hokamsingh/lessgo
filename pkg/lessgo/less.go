@@ -18,22 +18,75 @@ import (
 )
 
 // Expose core types
+
+// Controller defines the interface that all controllers in the application must implement.
+// Any controller that implements this interface must define the RegisterRoutes method,
+// which is responsible for setting up the necessary routes for the controller.
 type Controller = controller.Controller
+
+// BaseController provides a default implementation of the Controller interface.
+// It can be embedded in other controllers to inherit its default behavior,
+// or overridden with custom implementations.
 type BaseController = controller.BaseController
+
+// Container wraps the `dig.Container` and provides methods for registering and invoking dependencies.
+// This struct serves as the main entry point for setting up and managing dependency injection within the application.
 type Container = di.Container
+
+// Middleware defines the interface for HTTP middlewares.
+// Implementers should provide a `Handle` method that takes an `http.Handler` and returns a new `http.Handler`.
+// This allows for wrapping existing handlers with additional functionality.
 type Middleware = middleware.Middleware
+
+// BaseMiddleware provides a basic implementation of the Middleware interface.
+// It allows chaining of HTTP handlers by passing the request to the next handler in the chain.
+//
+// Example:
+//
+//	mw := &middleware.BaseMiddleware{}
+//	http.Handle("/", mw.Handle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//	    w.Write([]byte("Hello, World!"))
+//	})))
+//
+//	http.ListenAndServe(":8080", nil)
 type BaseMiddleware = middleware.BaseMiddleware
+
+// Module represents a module in the application.
+// It holds the name, a list of controllers, services, and any submodules.
+// The module can be used to organize and group related functionality.
 type Module = module.Module
+
+// IModule defines the interface for a module in the application.
+// Modules are responsible for managing controllers and services and can include other submodules.
+// Implementers of this interface must provide methods to get the module's name, controllers, and services.
 type IModule = module.IModule
+
+// Router represents an HTTP router with middleware support and error handling.
 type Router = router.Router
+
+// BaseService provides a default implementation of the Service interface.
+// This struct can be embedded in other service implementations to inherit
+// common functionalities or to be extended with custom methods.
 type BaseService = service.BaseService
+
+// Service defines the interface for all services in the application.
+// Implementations of this interface can provide specific functionalities
+// required by different parts of the application.
 type Service = service.Service
+
+// CORSOptions defines the configuration for the CORS middleware
 type CORSOptions = middleware.CORSOptions
+
+// Context holds the request and response writer and provides utility methods.
 type Context = context.Context
+
 type WebSocketServer = websocket.WebSocketServer
 
 // Expose middleware types and functions
+
+// CORSMiddleware is the middleware that handles CORS
 type CORSMiddleware = middleware.CORSMiddleware
+
 type RateLimiterMiddleware = middleware.RateLimiter
 type FileUploadMiddleware = middleware.FileUploadMiddleware
 

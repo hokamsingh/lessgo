@@ -13,12 +13,29 @@ type Task struct {
 	fn TaskFunc
 }
 
-// NewTask creates a new Task.
+// TaskFunc defines the type for the task function that returns a result and an error.
+// @callback TaskFunc
+// @param {context.Context} ctx - The context for the task, used for cancellation and deadlines.
+// @returns {interface{}, error} The result of the task and an error, if any.
+//
+// Example:
+//
+//	taskFunc := func(ctx context.Context) (interface{}, error) {
+//	    return "task result", nil
+//	}
 func NewTask(fn TaskFunc) *Task {
 	return &Task{fn: fn}
 }
 
 // Execute runs the task function and returns the result or an error.
+// Example:
+//
+//	 result, err := task.Execute(context.Background())
+//		if err != nil {
+//		    log.Fatal(err)
+//		}
+//
+// fmt.Println(result)
 func (t *Task) Execute(ctx context.Context) (interface{}, error) {
 	return t.fn(ctx)
 }
@@ -28,7 +45,7 @@ type ExecutionMode int
 
 const (
 	Parallel   ExecutionMode = 0
-    Sequential ExecutionMode = 1
+	Sequential ExecutionMode = 1
 )
 
 // TaskManager manages and executes tasks concurrently or sequentially.
