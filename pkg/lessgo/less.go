@@ -191,6 +191,6 @@ func NewTaskBuilder(mode int) *TaskBuilder {
 }
 
 // RegisterDependencies registers dependencies into container
-func RegisterDependencies(container di.Container, dependencies []interface{}) {
-	utils.RegisterDependencies(container, dependencies)
+func RegisterDependencies(dependencies []interface{}) {
+	utils.RegisterDependencies(dependencies)
 }
