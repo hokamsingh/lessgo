@@ -3,10 +3,12 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/hokamsingh/lessgo/internal/core/controller"
@@ -116,5 +118,30 @@ func RegisterDependencies(dependencies []interface{}) {
 		if err := container.Register(dep); err != nil {
 			log.Fatalf("Error registering dependencies: %v", err)
 		}
+	}
+}
+
+type SizeUnit string
+
+const (
+	Bytes     SizeUnit = "bytes"
+	Kilobytes SizeUnit = "kilobytes"
+	Megabytes SizeUnit = "megabytes"
+	Gigabytes SizeUnit = "gigabytes"
+)
+
+// ConvertToBytes converts a size given in the specified unit to bytes.
+func ConvertToBytes(size float64, unit SizeUnit) (int64, error) {
+	switch strings.ToLower(string(unit)) {
+	case string(Bytes):
+		return int64(size), nil
+	case string(Kilobytes):
+		return int64(size * 1024), nil
+	case string(Megabytes):
+		return int64(size * 1024 * 1024), nil
+	case string(Gigabytes):
+		return int64(size * 1024 * 1024 * 1024), nil
+	default:
+		return 0, errors.New("invalid size unit")
 	}
 }

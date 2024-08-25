@@ -126,9 +126,10 @@ func WithRateLimiter(limit int, interval time.Duration) Option {
 // Example usage:
 //
 //	r := router.NewRouter(router.WithJSONParser())
-func WithJSONParser() Option {
+func WithJSONParser(options middleware.ParserOptions) Option {
 	return func(r *Router) {
-		jsonParser := middleware.MiddlewareWrapper{HandlerFunc: middleware.JSONParser}
+		// jsonParser := middleware.MiddlewareWrapper{HandlerFunc: middleware.JSONParser}
+		jsonParser := middleware.NewJsonParser(options)
 		r.Use(jsonParser)
 	}
 }
@@ -141,7 +142,8 @@ func WithJSONParser() Option {
 //	r := router.NewRouter(router.WithCookieParser())
 func WithCookieParser() Option {
 	return func(r *Router) {
-		cookieParser := middleware.MiddlewareWrapper{HandlerFunc: middleware.CookieParser}
+		// cookieParser := middleware.MiddlewareWrapper{HandlerFunc: middleware.CookieParser}
+		cookieParser := middleware.NewCookieParser()
 		r.Use(cookieParser)
 	}
 }
@@ -284,8 +286,8 @@ func (r *Router) Swagger(path string, handler http.HandlerFunc) {
 	r.AddRoute(path, UnWrapCustomHandler(r.withContext(UnWrapCustomHandler(handler), "GET")))
 }
 
-func PathPrefix(path string){
-	
+func PathPrefix(path string) {
+
 }
 
 // Get registers a handler for GET requests.

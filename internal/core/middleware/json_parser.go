@@ -24,9 +24,34 @@ import (
 // 	})
 // }
 
-func JSONParser(next http.Handler) http.Handler {
+type ParserOptions struct {
+	size int64
+}
+
+type JSONParser struct {
+	Options ParserOptions
+}
+
+func NewParserOptions(size int64) *ParserOptions {
+	return &ParserOptions{
+		size: size,
+	}
+}
+
+func NewJsonParser(options ParserOptions) *JSONParser {
+	return &JSONParser{
+		Options: options,
+	}
+}
+
+func (jp *JSONParser) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Content-Type") == "application/json" {
+			maxBodySize := jp.Options.size
+			if r.ContentLength > maxBodySize {
+				http.Error(w, "Request body too large", http.StatusRequestEntityTooLarge)
+				return
+			}
 			// Read the body into a byte slice
 			bodyBytes, err := io.ReadAll(r.Body)
 			if err != nil {

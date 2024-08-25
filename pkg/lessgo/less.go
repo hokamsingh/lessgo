@@ -99,7 +99,7 @@ func GetApp() *Router {
 	return app
 }
 
-// LoadConfig loads the configuration
+// LoadConfig loads the ENV configurations
 func LoadConfig() config.Config {
 	config := config.LoadConfig()
 	return config
@@ -120,11 +120,21 @@ func NewRouter(options ...router.Option) *Router {
 	return router.NewRouter(options...)
 }
 
+// App creates a new app with optional configuration. You can pass options like WithCORS or WithJSONParser to configure the app.
 func App(options ...router.Option) *Router {
 	return router.NewRouter(options...)
 }
 
-// New Cors Options init
+// New Cors Options.
+//
+// Example
+//
+//	 corsOptions := LessGo.NewCorsOptions(
+//		[]string{"*"}, // Allow all origins
+//		[]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // Allowed methods
+//		[]string{"Content-Type", "Authorization"},           // Allowed headers
+//
+// )
 func NewCorsOptions(origins []string, methods []string, headers []string) *CORSOptions {
 	return middleware.NewCorsOptions(origins, methods, headers)
 }
@@ -138,8 +148,15 @@ func WithRateLimiter(limit int, interval time.Duration) router.Option {
 	return router.WithRateLimiter(limit, interval)
 }
 
-func WithJSONParser() router.Option {
-	return router.WithJSONParser()
+type ParserOptions = middleware.ParserOptions
+
+// Parser options. set default size
+func NewParserOptions(size int64) *ParserOptions {
+	return middleware.NewParserOptions(size)
+}
+
+func WithJSONParser(options ParserOptions) router.Option {
+	return router.WithJSONParser(options)
 }
 
 func WithCookieParser() router.Option {
@@ -155,6 +172,7 @@ func WithFileUpload(uploadDir string) router.Option {
 // 	return router.ServeStatic(pathPrefix, dir)
 // }
 
+// Resolves the path of specified folder
 func GetFolderPath(folderName string) (string, error) {
 	return utils.GetFolderPath(folderName)
 }
@@ -193,4 +211,30 @@ func NewTaskBuilder(mode int) *TaskBuilder {
 // RegisterDependencies registers dependencies into container
 func RegisterDependencies(dependencies []interface{}) {
 	utils.RegisterDependencies(dependencies)
+}
+
+type SizeUnit string
+
+const (
+	Bytes     SizeUnit = "bytes"
+	Kilobytes SizeUnit = "kilobytes"
+	Megabytes SizeUnit = "megabytes"
+	Gigabytes SizeUnit = "gigabytes"
+)
+
+// Convert size to bytes
+//
+// # Example
+//
+// const (
+//
+//	Bytes     SizeUnit = "bytes"
+//	Kilobytes SizeUnit = "kilobytes"
+//	Megabytes SizeUnit = "megabytes"
+//	Gigabytes SizeUnit = "gigabytes"
+//
+// )
+func ConvertToBytes(size int64, unit SizeUnit) (int64, error) {
+	s, err := utils.ConvertToBytes(float64(size), utils.SizeUnit(unit))
+	return int64(s), err
 }

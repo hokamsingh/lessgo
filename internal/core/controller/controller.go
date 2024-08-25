@@ -20,7 +20,8 @@ type Controller interface {
 // BaseController provides a default implementation of the Controller interface.
 // It can be embedded in other controllers to inherit its default behavior,
 // or overridden with custom implementations.
-type BaseController struct{}
+type BaseController struct {
+}
 
 // RegisterRoutes is the default implementation of the Controller interface's method.
 // This method can be overridden by embedding BaseController in another struct

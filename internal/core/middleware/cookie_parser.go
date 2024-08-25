@@ -5,7 +5,13 @@ import (
 	"net/http"
 )
 
-func CookieParser(next http.Handler) http.Handler {
+type CookieParser struct{}
+
+func NewCookieParser() *CookieParser {
+	return &CookieParser{}
+}
+
+func (cp *CookieParser) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookies := r.Cookies()
 		cookieMap := make(map[string]string)
