@@ -279,6 +279,15 @@ func (r *Router) withLogging(next http.HandlerFunc) http.HandlerFunc {
 // CustomHandler is a function type that takes a custom Context.
 type CustomHandler func(ctx *context.Context)
 
+// Server Swagger
+func (r *Router) Swagger(path string, handler http.HandlerFunc) {
+	r.AddRoute(path, UnWrapCustomHandler(r.withContext(UnWrapCustomHandler(handler), "GET")))
+}
+
+func PathPrefix(path string){
+	
+}
+
 // Get registers a handler for GET requests.
 func (r *Router) Get(path string, handler CustomHandler) {
 	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "GET")))

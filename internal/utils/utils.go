@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/hokamsingh/lessgo/internal/core/controller"
+	"github.com/hokamsingh/lessgo/internal/core/di"
 	"github.com/hokamsingh/lessgo/internal/core/module"
 	"github.com/hokamsingh/lessgo/internal/core/router"
 )
@@ -80,4 +81,13 @@ func GenerateRandomToken(length int) (string, error) {
 
 	// Convert the random bytes to a hexadecimal string
 	return hex.EncodeToString(token), nil
+}
+
+// RegisterDependencies registers dependencies into container
+func RegisterDependencies(container di.Container, dependencies []interface{}) {
+	for _, dep := range dependencies {
+		if err := container.Register(dep); err != nil {
+			log.Fatalf("Error registering dependencies: %v", err)
+		}
+	}
 }

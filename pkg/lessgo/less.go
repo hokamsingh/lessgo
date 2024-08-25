@@ -189,3 +189,8 @@ const Sequential = 1
 func NewTaskBuilder(mode int) *TaskBuilder {
 	return concurrency.NewTaskBuilder(concurrency.ExecutionMode(mode))
 }
+
+// RegisterDependencies registers dependencies into container
+func RegisterDependencies(container di.Container, dependencies []interface{}) {
+	utils.RegisterDependencies(container, dependencies)
+}
