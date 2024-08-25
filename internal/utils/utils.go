@@ -88,7 +88,8 @@ const (
 func RegisterModules(r *router.Router, modules []module.IModule) error {
 	for _, module := range modules {
 		RegisterModuleRoutes(r, module)
-		log.Println(fmt.Sprintf("%sLessGo :: Registered module %s%s%s", Green, Yellow, module.GetName(), Reset))
+		l := fmt.Sprintf("%sLessGo :: Registered module %s%s%s", Green, Yellow, module.GetName(), Reset)
+		log.Println(l)
 	}
 	return nil
 }
