@@ -172,26 +172,25 @@ const (
 
 // SetCookie adds a cookie to the response.
 //
-// This method sets a cookie with the given name, value, and options.
+// This method sets a cookie with the specified attributes.
 //
 // Parameters:
-//
-//			name (string): The name of the cookie.
-//			value (string): The value of the cookie.
-//			maxAge (int): The maximum age of the cookie in seconds.
-//			path (string): The path for which the cookie is valid.
-//		    httpOnly(bool): make it http only cookie.(can only be sent from http request)
-//		    secure(bool): ensures that the cookie is only sent over HTTPS connections, providing protection against man-in-the-middle (MITM) attacks
-//			sameSite(http.SameSite): Strict(SameSiteStrictMode): Most restrictive, no cross-site requests.
-//	     Lax(SameSiteLaxMode): Allows cookies to be sent with top-level navigations, but not with other cross-site requests.
-//
-//			None(SameSiteNoneMode): No restrictions on sending cookies with cross-site requests, but must be used with Secure.
-//
-//			Default(SameSiteDefaultMode): Equivalent to Lax
+//   - name (string): The name of the cookie.
+//   - value (string): The value of the cookie.
+//   - maxAge (int): The maximum age of the cookie in seconds.
+//   - path (string): The path for which the cookie is valid.
+//   - httpOnly (bool): If true, the cookie is accessible only via HTTP(S), not JavaScript (prevents XSS attacks).
+//   - secure (bool): If true, the cookie is sent only over HTTPS connections (prevents MITM attacks).
+//   - sameSite (http.SameSite): The SameSite attribute controls when cookies are sent with cross-site requests.
+//     It can be one of the following:
+//   - http.SameSiteStrict: Most restrictive, no cross-site requests are allowed.
+//   - http.SameSiteLax: Allows cookies to be sent with top-level navigations but not with other cross-site requests.
+//   - http.SameSiteNone: No restrictions on sending cookies with cross-site requests, but must be used with Secure.
+//   - http.SameSiteDefaultMode: Defaults to http.SameSiteLax if not explicitly set.
 //
 // Example usage:
 //
-//	ctx.SetCookie("auth_token", "0xc000013a", 60, "", true, false, http.SameSiteDefaultMode)
+//	ctx.SetCookie("auth_token", "0xc000013a", 60, "/", true, true, http.SameSiteLax)
 func (c *Context) SetCookie(name, value string, maxAge int, path string, httpOnly bool, secure bool, sameSite http.SameSite) {
 	http.SetCookie(c.Res, &http.Cookie{
 		Name:     name,
