@@ -99,8 +99,6 @@ func isXSS(value string) bool {
 		"svg/onload=",
 		"math:xmlns",
 		"data:",
-		"http://",
-		"https://",
 		"ftp://",
 		"file://",
 		"%3Cscript%3E",
