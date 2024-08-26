@@ -134,6 +134,87 @@ func WithJSONParser(options middleware.ParserOptions) Option {
 	}
 }
 
+// WithCaching is an option function that enables caching for the router using Redis.
+//
+// This function returns an Option that can be passed to the Router to enable
+// response caching with Redis. Cached responses will be stored in Redis with a
+// specified Time-To-Live (TTL), meaning they will automatically expire after the
+// specified duration.
+//
+// Parameters:
+//   - redisAddr (string): The address of the Redis server, e.g., "localhost:6379".
+//   - ttl (time.Duration): The Time-To-Live for cached responses. Responses will
+//     be removed from the cache after this duration.
+//
+// Returns:
+//   - Option: An option that applies caching middleware to the router.
+//
+// Example usage:
+//
+//	router := NewRouter(
+//	    WithCaching("localhost:6379", 5*time.Minute),
+//	)
+//
+// This will enable caching for the router, storing responses in Redis for 5 minutes.
+//
+// Note: Ensure that the Redis server is running and accessible at the specified
+// address.
+func WithCaching(redisAddr string, ttl time.Duration) Option {
+	return func(r *Router) {
+		caching := middleware.NewCaching(redisAddr, ttl)
+		r.Use(caching)
+	}
+}
+
+// WithCsrf is an option function that enables CSRF protection for the router.
+//
+// This function returns an Option that can be passed to the Router to enable
+// Cross-Site Request Forgery (CSRF) protection using a middleware. The middleware
+// generates and validates CSRF tokens to protect against malicious cross-origin
+// requests, ensuring that requests are coming from legitimate users.
+//
+// Returns:
+//   - Option: An option that applies CSRF protection middleware to the router.
+//
+// Example usage:
+//
+//	router := NewRouter(
+//	    WithCsrf(),
+//	)
+//
+// This will enable CSRF protection for all routes in the router.
+func WithCsrf() Option {
+	return func(r *Router) {
+		csrf := middleware.NewCSRFProtection()
+		r.Use(csrf)
+	}
+}
+
+// WithXss is an option function that enables XSS protection for the router.
+//
+// This function returns an Option that can be passed to the Router to enable
+// Cross-Site Scripting (XSS) protection using a middleware. The middleware
+// helps to sanitize and filter out malicious scripts from user input, thereby
+// preventing XSS attacks.
+//
+// Returns:
+//   - Option: An option that applies XSS protection middleware to the router.
+//
+// Example usage:
+//
+//	router := NewRouter(
+//	    WithXss(),
+//	)
+//
+// This will enable XSS protection for all routes in the router, ensuring that
+// user input is sanitized and secure.
+func WithXss() Option {
+	return func(r *Router) {
+		xss := middleware.NewXSSProtection()
+		r.Use(xss)
+	}
+}
+
 // WithCookieParser enables cookie parsing middleware.
 // This option ensures that cookies are parsed and available in the request context.
 //
