@@ -113,9 +113,9 @@ func WithCORS(options middleware.CORSOptions) Option {
 // Example usage:
 //
 //	r := router.NewRouter(router.WithRateLimiter(100, time.Minute))
-func WithRateLimiter(limit int, interval time.Duration) Option {
+func WithRateLimiter(limit int, interval, cleanupInterval time.Duration) Option {
 	return func(r *Router) {
-		rateLimiter := middleware.NewRateLimiter(limit, interval)
+		rateLimiter := middleware.NewRateLimiter(limit, interval, cleanupInterval)
 		r.Use(rateLimiter)
 	}
 }

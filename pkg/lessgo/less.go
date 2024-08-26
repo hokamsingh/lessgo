@@ -144,8 +144,8 @@ func WithCORS(options middleware.CORSOptions) router.Option {
 	return router.WithCORS(options)
 }
 
-func WithRateLimiter(limit int, interval time.Duration) router.Option {
-	return router.WithRateLimiter(limit, interval)
+func WithRateLimiter(limit int, interval, cleanupInterval time.Duration) router.Option {
+	return router.WithRateLimiter(limit, interval, cleanupInterval)
 }
 
 type ParserOptions = middleware.ParserOptions
