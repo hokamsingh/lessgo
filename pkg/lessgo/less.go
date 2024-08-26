@@ -167,6 +167,18 @@ func WithFileUpload(uploadDir string) router.Option {
 	return router.WithFileUpload(uploadDir)
 }
 
+func WithCaching(redisAddr string, ttl time.Duration) router.Option {
+	return router.WithCaching(redisAddr, ttl)
+}
+
+func WithCsrf() router.Option {
+	return router.WithCsrf()
+}
+
+func WithXss() router.Option {
+	return router.WithXss()
+}
+
 // // ServeStatic creates a file server handler to serve static files
 // func ServeStatic(pathPrefix, dir string) http.Handler {
 // 	return router.ServeStatic(pathPrefix, dir)
