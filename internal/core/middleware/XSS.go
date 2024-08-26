@@ -66,18 +66,51 @@ func containsXSS(r *http.Request) bool {
 
 // isXSS checks if a string contains potentially harmful XSS payloads.
 func isXSS(value string) bool {
-	// Check for basic XSS patterns. This is a simplistic approach; consider using a library for more comprehensive sanitization.
+	// Define a more comprehensive list of unsafe patterns
 	unsafePatterns := []string{
 		"<script>",
 		"javascript:",
 		"data:text/html",
+		"vbscript:",
+		"mocha:",
 		"onerror=",
 		"onload=",
-		"iframe",
+		"onclick=",
+		"onmouseover=",
+		"onfocus=",
+		"onchange=",
+		"onsubmit=",
+		"onreset=",
+		"onabort=",
+		"<iframe>",
+		"<img src=",
+		"<object>",
+		"<embed>",
+		"<style>",
+		"<link>",
+		"<meta>",
+		"document.cookie",
+		"window.location",
+		"self.location",
+		"eval(",
+		"<!--",
+		"--!>",
+		"<![CDATA[",
+		"svg/onload=",
+		"math:xmlns",
+		"data:",
+		"http://",
+		"https://",
+		"ftp://",
+		"file://",
+		"%3Cscript%3E",
+		"&#60;script&#62;",
+		"&#x3C;script&#x3E;",
 	}
 
+	valueLower := strings.ToLower(value)
 	for _, pattern := range unsafePatterns {
-		if strings.Contains(strings.ToLower(value), pattern) {
+		if strings.Contains(valueLower, pattern) {
 			return true
 		}
 	}
