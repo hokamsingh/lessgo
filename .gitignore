@@ -41,3 +41,7 @@ node_modules/
 
 # Windows specific files
 Thumbs.db
+
+# Docker files
+Dockerfile
+docker-compose.yml
