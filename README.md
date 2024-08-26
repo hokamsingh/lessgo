@@ -1,5 +1,8 @@
 ---
 
+[![Go Version](https://img.shields.io/github/go-mod/go-version/hokamsingh/lessgo-cli)](https://golang.org/dl/)
+![Version](https://img.shields.io/badge/version-v0.3.0-blue)
+
 ## 🛠️ LessGo Framework Release
 
 We are excited to announce the latest release of the **LessGo** framework! This release introduces several powerful features and enhancements to make your Go development experience even more robust and efficient.
