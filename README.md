@@ -50,7 +50,21 @@ To get started with the latest version of LessGo, update your dependencies using
 go get github.com/hokamsingh/lessgo@latest
 ```
 
-For detailed upgrade instructions and migration guides, please refer to our [documentation](#).
+### 🌟 Get Started Quickly with LessGo CLI
+
+We're also introducing the **LessGo CLI**, a command-line tool to help you scaffold and manage your LessGo projects with ease! With the CLI, you can:
+
+- **Create a New Project**: Quickly set up a new LessGo project using `lessgo-cli new myapp`.
+- **Check Version**: Keep track of the CLI version with `lessgo-cli --version`.
+- **Cross-Platform Support**: Works seamlessly on both Windows and Unix-based systems.
+
+Install the LessGo CLI with:
+
+```sh
+go install github.com/hokamsingh/lessgo-cli@latest
+```
+
+Make sure to try out the CLI to streamline your project setup and start building with LessGo in no time!
 
 ### 🙌 Acknowledgments
 
