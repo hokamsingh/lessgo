@@ -70,6 +70,10 @@ Make sure to try out the CLI to streamline your project setup and start building
 
 We would like to thank our contributors and community for their support and feedback. Your contributions have been invaluable in shaping the LessGo framework.
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
 ---
 
 For any questions, issues, or feedback, please visit our [GitHub repository](https://github.com/hokamsingh/lessgo) or join our [community discussions](#).
