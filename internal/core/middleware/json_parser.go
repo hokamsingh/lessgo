@@ -44,6 +44,8 @@ func NewJsonParser(options ParserOptions) *JSONParser {
 	}
 }
 
+type JsonKey string
+
 func (jp *JSONParser) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Content-Type") == "application/json" {
@@ -70,7 +72,7 @@ func (jp *JSONParser) Handle(next http.Handler) http.Handler {
 			}
 
 			// Store the parsed JSON in the context
-			key := "jsonBody"
+			key := JsonKey("jsonBody")
 			r = r.WithContext(context.WithValue(r.Context(), key, body))
 		}
 		next.ServeHTTP(w, r)
