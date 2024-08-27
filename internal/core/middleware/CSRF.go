@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -16,13 +17,17 @@ func NewCSRFProtection() *CSRFProtection {
 func (csrf *CSRFProtection) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			// Generate and set CSRF token for GET requests
-			token, err := GenerateCSRFToken()
+			// Retrieve or set CSRF token for GET requests
+			_, err := getCSRFCookie(r)
 			if err != nil {
-				http.Error(w, "Failed to generate CSRF token", http.StatusInternalServerError)
-				return
+				// Generate and set a new CSRF token if not present
+				token, err := GenerateCSRFToken()
+				if err != nil {
+					http.Error(w, "Failed to generate CSRF token", http.StatusInternalServerError)
+					return
+				}
+				SetCSRFCookie(w, token)
 			}
-			SetCSRFCookie(w, token)
 		} else if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
 			// Validate CSRF token for state-changing requests
 			if !ValidateCSRFToken(r) {
@@ -34,6 +39,7 @@ func (csrf *CSRFProtection) Handle(next http.Handler) http.Handler {
 	})
 }
 
+// GenerateCSRFToken generates a new CSRF token.
 func GenerateCSRFToken() (string, error) {
 	token := make([]byte, 32) // 32 bytes = 256 bits
 	if _, err := io.ReadFull(rand.Reader, token); err != nil {
@@ -53,11 +59,22 @@ func SetCSRFCookie(w http.ResponseWriter, token string) {
 	})
 }
 
+// getCSRFCookie retrieves the CSRF token from the cookie, if present.
+func getCSRFCookie(r *http.Request) (string, error) {
+	cookie, err := r.Cookie("csrf_token")
+	if err != nil {
+		return "", err
+	}
+	return cookie.Value, nil
+}
+
+// ValidateCSRFToken validates the CSRF token from the request header or form data.
 func ValidateCSRFToken(r *http.Request) bool {
 	cookie, err := r.Cookie("csrf_token")
 	if err != nil {
+		log.Printf("Error retrieving CSRF cookie: %v", err)
 		return false
 	}
-	csrfToken := r.Header.Get("X-CSRF-Token") // Or retrieve from form data
+	csrfToken := r.Header.Get("X-CSRF-Token") // Retrieve from request header
 	return csrfToken == cookie.Value
 }
