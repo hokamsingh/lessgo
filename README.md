@@ -1,7 +1,7 @@
 ---
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/hokamsingh/lessgo-cli)](https://golang.org/dl/)
-![Version](https://img.shields.io/badge/version-v0.3.0-blue)
+![Version](https://img.shields.io/badge/version-v1.0.0-blue)
 
 ## 🛠️ LessGo Framework Release
 
@@ -31,6 +31,34 @@ We are excited to announce the latest release of the **LessGo** framework! This 
 - **Advanced Data Validation**:
   - **Strict Validation**: Ensure data integrity by validating incoming requests against predefined models.
   - **Dynamic Key Checks**: Verify that all required fields are present in the request payload.
+
+- **🛡️ CSRF Protection Middleware**:
+  - **`LessGo.WithCsrf()`**: Integrated Cross-Site Request Forgery (CSRF) protection to safeguard your applications against unauthorized actions.
+
+- **🔒 XSS Protection Middleware**:
+  - **`LessGo.WithXss()`**: Built-in Cross-Site Scripting (XSS) protection to prevent malicious script injections.
+
+- **⚡ Caching Middleware**:
+  - **`LessGo.WithCaching("localhost:6379", 5*time.Minute)`**: Redis-based caching middleware for improved performance with configurable cache expiration
+- **Response Handling**
+  - Enhanced response handling to ensure multiple responses are not sent from the same context, preventing unexpected behaviors and potential crashes.
+  
+- **Template Rendering**
+  - Introduced support for rendering templates dynamically from a specified directory, reducing the need to manually list each template file.
+
+- **Middleware Improvements**
+  - Refined existing middleware to ensure seamless integration and performance.
+  - Addressed potential edge cases and improved overall robustness.
+
+## ⚙️ Migration Notes
+
+- The new security middlewares (`WithCsrf` and `WithXss`) are optional but highly recommended for applications that handle sensitive data.
+- The caching middleware requires a running Redis instance. Ensure your Redis server is properly configured and accessible from your application.
+
+## 🛡️ Security
+
+- Security is a top priority for us, and this release emphasizes that with the introduction of CSRF and XSS protection middlewares. We strongly recommend enabling these features to safeguard your applications against common web vulnerabilities.
+
 
 ### 📚 Documentation & Examples
 
