@@ -242,6 +242,41 @@ func WithFileUpload(uploadDir string) Option {
 	}
 }
 
+// WithTemplateRendering sets up the router to use the TemplateMiddleware for rendering HTML templates.
+// It automatically loads all `.html` files from the specified directory and makes them available
+// for rendering within the application's handlers.
+//
+// The middleware parses all `.html` files from the provided directory during initialization
+// and injects the parsed templates into the request context, allowing handlers to access and render
+// the templates as needed.
+//
+// Usage:
+//
+//	router := NewRouter(
+//	    WithTemplateRendering("templates"), // Directory containing all .html files
+//	)
+//
+//	router.HandleFunc("/", yourHandler)
+//
+// In the handler, you can retrieve and execute a template:
+//
+//	func yourHandler(w http.ResponseWriter, r *http.Request) {
+//	    tmpl := middleware.GetTemplate(r.Context())
+//	    tmpl.ExecuteTemplate(w, "index.html", nil) // Renders the index.html template
+//	}
+//
+// Parameters:
+//   - templateDir: The directory containing the `.html` files to be used as templates.
+//
+// Returns:
+//   - Option: A function that configures the router to use the template rendering middleware.
+func WithTemplateRendering(templateDir string) Option {
+	return func(r *Router) {
+		renderer := middleware.NewTemplateMiddleware(templateDir)
+		r.Use(renderer)
+	}
+}
+
 // Use adds a middleware to the router's middleware stack.
 //
 // Example usage:

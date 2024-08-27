@@ -139,11 +139,22 @@ func NewCorsOptions(origins []string, methods []string, headers []string) *CORSO
 	return middleware.NewCorsOptions(origins, methods, headers)
 }
 
-// Expose middleware options
+// WithCORS enables CORS middleware with specific options.
+// This option configures the CORS settings for the router.
+//
+// Example usage:
+//
+//	r := router.NewRouter(router.WithCORS(middleware.CORSOptions{...}))
 func WithCORS(options middleware.CORSOptions) router.Option {
 	return router.WithCORS(options)
 }
 
+// WithRateLimiter enables rate limiting middleware with the specified limit and interval.
+// This option configures the rate limiter for the router.
+//
+// Example usage:
+//
+//	r := router.NewRouter(router.WithRateLimiter(100, time.Minute))
 func WithRateLimiter(limit int, interval, cleanupInterval time.Duration) router.Option {
 	return router.WithRateLimiter(limit, interval, cleanupInterval)
 }
@@ -155,28 +166,138 @@ func NewParserOptions(size int64) *ParserOptions {
 	return middleware.NewParserOptions(size)
 }
 
+// WithJSONParser enables JSON parsing middleware for request bodies.
+// This option ensures that incoming JSON payloads are parsed and available in the request context.
+//
+// Example usage:
+//
+//	r := router.NewRouter(router.WithJSONParser())
 func WithJSONParser(options ParserOptions) router.Option {
 	return router.WithJSONParser(options)
 }
 
+// WithCookieParser enables cookie parsing middleware.
+// This option ensures that cookies are parsed and available in the request context.
+//
+// Example usage:
+//
+//	r := router.NewRouter(router.WithCookieParser())
 func WithCookieParser() router.Option {
 	return router.WithCookieParser()
 }
 
+// WithFileUpload enables file upload middleware with the specified upload directory.
+// This option configures the router to handle file uploads and save them to the given directory.
+//
+// Example usage:
+//
+//	r := router.NewRouter(router.WithFileUpload("/uploads"))
 func WithFileUpload(uploadDir string) router.Option {
 	return router.WithFileUpload(uploadDir)
 }
 
+// WithCaching is an option function that enables caching for the router using Redis.
+//
+// This function returns an Option that can be passed to the Router to enable
+// response caching with Redis. Cached responses will be stored in Redis with a
+// specified Time-To-Live (TTL), meaning they will automatically expire after the
+// specified duration.
+//
+// Parameters:
+//   - redisAddr (string): The address of the Redis server, e.g., "localhost:6379".
+//   - ttl (time.Duration): The Time-To-Live for cached responses. Responses will
+//     be removed from the cache after this duration.
+//
+// Returns:
+//   - Option: An option that applies caching middleware to the router.
+//
+// Example usage:
+//
+//	router := NewRouter(
+//	    WithCaching("localhost:6379", 5*time.Minute),
+//	)
+//
+// This will enable caching for the router, storing responses in Redis for 5 minutes.
+//
+// Note: Ensure that the Redis server is running and accessible at the specified
+// address.
 func WithCaching(redisAddr string, ttl time.Duration) router.Option {
 	return router.WithCaching(redisAddr, ttl)
 }
 
+// WithCsrf is an option function that enables CSRF protection for the router.
+//
+// This function returns an Option that can be passed to the Router to enable
+// Cross-Site Request Forgery (CSRF) protection using a middleware. The middleware
+// generates and validates CSRF tokens to protect against malicious cross-origin
+// requests, ensuring that requests are coming from legitimate users.
+//
+// Returns:
+//   - Option: An option that applies CSRF protection middleware to the router.
+//
+// Example usage:
+//
+//	router := NewRouter(
+//	    WithCsrf(),
+//	)
+//
+// This will enable CSRF protection for all routes in the router.
 func WithCsrf() router.Option {
 	return router.WithCsrf()
 }
 
+// WithXss is an option function that enables XSS protection for the router.
+//
+// This function returns an Option that can be passed to the Router to enable
+// Cross-Site Scripting (XSS) protection using a middleware. The middleware
+// helps to sanitize and filter out malicious scripts from user input, thereby
+// preventing XSS attacks.
+//
+// Returns:
+//   - Option: An option that applies XSS protection middleware to the router.
+//
+// Example usage:
+//
+//	router := NewRouter(
+//	    WithXss(),
+//	)
+//
+// This will enable XSS protection for all routes in the router, ensuring that
+// user input is sanitized and secure.
 func WithXss() router.Option {
 	return router.WithXss()
+}
+
+// WithTemplateRendering sets up the router to use the TemplateMiddleware for rendering HTML templates.
+// It automatically loads all `.html` files from the specified directory and makes them available
+// for rendering within the application's handlers.
+//
+// The middleware parses all `.html` files from the provided directory during initialization
+// and injects the parsed templates into the request context, allowing handlers to access and render
+// the templates as needed.
+//
+// Usage:
+//
+//	router := NewRouter(
+//	    WithTemplateRendering("templates"), // Directory containing all .html files
+//	)
+//
+//	router.HandleFunc("/", yourHandler)
+//
+// In the handler, you can retrieve and execute a template:
+//
+//	func yourHandler(w http.ResponseWriter, r *http.Request) {
+//	    tmpl := middleware.GetTemplate(r.Context())
+//	    tmpl.ExecuteTemplate(w, "index.html", nil) // Renders the index.html template
+//	}
+//
+// Parameters:
+//   - templateDir: The directory containing the `.html` files to be used as templates.
+//
+// Returns:
+//   - Option: A function that configures the router to use the template rendering middleware.
+func WithTemplateRendering(templateDir string) router.Option {
+	return router.WithTemplateRendering(templateDir)
 }
 
 // // ServeStatic creates a file server handler to serve static files
