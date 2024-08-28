@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -79,10 +80,15 @@ func NewRateLimiter(limiterType RateLimiterType, config interface{}) *RateLimite
 		return rl
 
 	case RedisBacked:
+		ctx := context.Background()
 		cfg := config.(RedisConfig)
 		client := redis.NewClient(&redis.Options{
 			Addr: cfg.Addr,
 		})
+		_, err := client.Ping(ctx).Result()
+		if err != nil {
+			log.Fatalf("Could not connect to Redis: %v", err)
+		}
 		return &RateLimiter{
 			limiterType: RedisBacked,
 			limit:       cfg.Limit,
