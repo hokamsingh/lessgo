@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"io"
 	"log"
@@ -22,10 +23,13 @@ func NewCaching(redisAddr string, ttl time.Duration, cacheControl bool) *Caching
 	client := redis.NewClient(&redis.Options{
 		Addr: redisAddr, // e.g., "localhost:6379"
 	})
-	_, err := client.Ping(ctx).Result()
-	if err != nil {
-		log.Fatalf("Could not connect to Redis: %v", err)
+
+	// Attempt to ping Redis
+	if _, err := client.Ping(ctx).Result(); err != nil {
+		log.Printf("Could not connect to Redis: %v. Caching will be disabled.", err)
+		client = nil // Mark Redis as unavailable
 	}
+
 	return &Caching{
 		client:       client,
 		ttl:          ttl,
@@ -43,30 +47,50 @@ func (c *Caching) Handle(next http.Handler) http.Handler {
 			return
 		}
 
-		if r.Method == http.MethodGet {
+		// Proceed without caching if Redis is unavailable
+		if c.client != nil && r.Method == http.MethodGet {
 			data, err := c.client.Get(ctx, r.RequestURI).Result()
 			if err == nil {
-				// Cache hit
+				// Cache hit: decompress data
+				reader, err := gzip.NewReader(bytes.NewReader([]byte(data)))
+				if err != nil {
+					log.Printf("Error decompressing cache data: %v. Proceeding without cache.", err)
+					next.ServeHTTP(w, r)
+					return
+				}
+				defer reader.Close()
+
+				// Write decompressed data to response
 				w.Header().Set("X-Cache-Hit", "true")
-				io.WriteString(w, data)
+				w.Header().Set("Content-Encoding", "gzip")
+				io.Copy(w, reader)
 				return
 			} else if err != redis.Nil {
-				log.Printf("Error retrieving from cache: %v", err)
+				log.Printf("Error retrieving from cache: %v. Proceeding without cache.", err)
 			}
 		}
 
-		// Capture response
+		// Capture and compress response
 		rec := &responseRecorder{ResponseWriter: w, statusCode: http.StatusOK, body: new(bytes.Buffer)}
 		next.ServeHTTP(rec, r)
 
-		// Cache only successful responses (status codes 200-299)
-		if r.Method == http.MethodGet && rec.statusCode >= http.StatusOK && rec.statusCode < 300 {
-			err := c.client.Set(ctx, r.RequestURI, rec.body.String(), c.ttl).Err()
+		// Cache only successful responses (status codes 200-299) if Redis is available
+		if c.client != nil && r.Method == http.MethodGet && rec.statusCode >= http.StatusOK && rec.statusCode < 300 {
+			var compressedData bytes.Buffer
+			gzipWriter := gzip.NewWriter(&compressedData)
+			_, err := gzipWriter.Write(rec.body.Bytes())
 			if err != nil {
-				log.Printf("Error setting cache: %v", err)
+				log.Printf("Error compressing cache data: %v. Proceeding without cache.", err)
+				return
+			}
+			gzipWriter.Close()
+
+			// Store compressed data in Redis
+			err = c.client.Set(ctx, r.RequestURI, compressedData.Bytes(), c.ttl).Err()
+			if err != nil {
+				log.Printf("Error setting cache: %v. Proceeding without cache.", err)
 			}
 		}
-
 	})
 }
 
