@@ -1,50 +1,80 @@
 package middleware
 
 import (
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
+	"strings"
+
+	"github.com/google/uuid"
 )
 
-// FileUploadMiddleware handles file uploads and saves them to the specified directory
 type FileUploadMiddleware struct {
-	uploadDir string
+	uploadDir   string
+	maxFileSize int64    // Maximum file size in bytes
+	allowedExts []string // Allowed file extensions
 }
 
 // NewFileUploadMiddleware creates a new instance of FileUploadMiddleware
-func NewFileUploadMiddleware(uploadDir string) *FileUploadMiddleware {
-	return &FileUploadMiddleware{uploadDir: uploadDir}
+func NewFileUploadMiddleware(uploadDir string, maxFileSize int64, allowedExts []string) *FileUploadMiddleware {
+	// Ensure the upload directory exists
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		log.Fatalf("Failed to create upload directory: %v", err)
+	}
+
+	if len(allowedExts) == 0 {
+		allowedExts = []string{".jpg"} // Default allowed extension if none provided
+	}
+
+	return &FileUploadMiddleware{
+		uploadDir:   uploadDir,
+		maxFileSize: maxFileSize,
+		allowedExts: allowedExts,
+	}
 }
 
 // Handle is the middleware function that processes file uploads
 func (f *FileUploadMiddleware) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseMultipartForm(32 << 20); err != nil { // 32 MB limit
-			http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		if err := r.ParseMultipartForm(f.maxFileSize); err != nil {
+			http.Error(w, "File too large or unable to parse form", http.StatusBadRequest)
+			log.Printf("Error parsing form: %v", err)
 			return
 		}
 
-		// Get file from form data
 		file, fileHeader, err := r.FormFile("file")
 		if err != nil {
 			http.Error(w, "Unable to get file from form data", http.StatusBadRequest)
+			log.Printf("Error retrieving file: %v", err)
 			return
 		}
 		defer file.Close()
 
-		// Extract file extension
-		ext := filepath.Ext(fileHeader.Filename)
-		if ext == "" {
-			ext = ".bin" // Default extension if none provided
+		// Validate file size
+		if fileHeader.Size > f.maxFileSize {
+			http.Error(w, "File size exceeds limit", http.StatusRequestEntityTooLarge)
+			return
 		}
 
-		// Create file on server with timestamp and original extension
-		filePath := filepath.Join(f.uploadDir, generateFileName()+ext)
+		// Validate file extension
+		ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+		if !f.isAllowedExt(ext) {
+			http.Error(w, "File type not allowed", http.StatusUnsupportedMediaType)
+			return
+		}
+
+		// Generate a unique file name
+		fileName := generateFileName() + ext
+		filePath := filepath.Join(f.uploadDir, fileName)
+
+		// Create the file
 		destFile, err := os.Create(filePath)
 		if err != nil {
 			http.Error(w, "Unable to save file", http.StatusInternalServerError)
+			log.Printf("Error creating file: %v", err)
 			return
 		}
 		defer destFile.Close()
@@ -52,15 +82,30 @@ func (f *FileUploadMiddleware) Handle(next http.Handler) http.Handler {
 		// Copy file content
 		if _, err := io.Copy(destFile, file); err != nil {
 			http.Error(w, "Unable to copy file content", http.StatusInternalServerError)
+			log.Printf("Error copying file content: %v", err)
 			return
 		}
+
+		// Optionally, you can add a response to inform about the successful upload
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprintf(w, "File uploaded successfully: %s", fileName)
 
 		// Call the next handler
 		next.ServeHTTP(w, r)
 	})
 }
 
-// generateFileName generates a unique file name with timestamp
+// isAllowedExt checks if the file extension is allowed
+func (f *FileUploadMiddleware) isAllowedExt(ext string) bool {
+	for _, allowedExt := range f.allowedExts {
+		if ext == allowedExt {
+			return true
+		}
+	}
+	return false
+}
+
+// generateFileName generates a unique file name using UUID
 func generateFileName() string {
-	return time.Now().Format("20060102150405")
+	return uuid.New().String()
 }

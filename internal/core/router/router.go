@@ -257,9 +257,9 @@ func WithCookieParser() Option {
 // Example usage:
 //
 //	r := router.NewRouter(router.WithFileUpload("/uploads"))
-func WithFileUpload(uploadDir string) Option {
+func WithFileUpload(uploadDir string, maxFileSize int64, allowedExts []string) Option {
 	return func(r *Router) {
-		fileUploadMiddleware := middleware.NewFileUploadMiddleware(uploadDir)
+		fileUploadMiddleware := middleware.NewFileUploadMiddleware(uploadDir, maxFileSize, allowedExts)
 		r.Use(fileUploadMiddleware)
 	}
 }

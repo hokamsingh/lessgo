@@ -209,8 +209,8 @@ func WithCookieParser() router.Option {
 // Example usage:
 //
 //	r := router.NewRouter(router.WithFileUpload("/uploads"))
-func WithFileUpload(uploadDir string) router.Option {
-	return router.WithFileUpload(uploadDir)
+func WithFileUpload(uploadDir string, maxFileSize int64, allowedExts []string) router.Option {
+	return router.WithFileUpload(uploadDir, maxFileSize, allowedExts)
 }
 
 // WithCaching is an option function that enables caching for the router using Redis.
