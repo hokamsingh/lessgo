@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -57,6 +58,7 @@ func (jp *JSONParser) Handle(next http.Handler) http.Handler {
 			// Read the body into a byte slice
 			bodyBytes, err := io.ReadAll(r.Body)
 			if err != nil {
+				log.Print(err)
 				http.Error(w, "Invalid JSON", http.StatusBadRequest)
 				return
 			}
@@ -65,8 +67,9 @@ func (jp *JSONParser) Handle(next http.Handler) http.Handler {
 			r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 			// Decode the body into a map
-			var body map[string]interface{}
+			var body interface{} // map[string]interface{} global
 			if err := json.Unmarshal(bodyBytes, &body); err != nil {
+				log.Print(err)
 				http.Error(w, "Invalid JSON", http.StatusBadRequest)
 				return
 			}
