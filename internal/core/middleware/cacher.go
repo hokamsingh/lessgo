@@ -59,13 +59,14 @@ func (c *Caching) Handle(next http.Handler) http.Handler {
 		rec := &responseRecorder{ResponseWriter: w, statusCode: http.StatusOK, body: new(bytes.Buffer)}
 		next.ServeHTTP(rec, r)
 
-		// Cache only successful responses (status code 200)
-		if r.Method == http.MethodGet && rec.statusCode == http.StatusOK {
+		// Cache only successful responses (status codes 200-299)
+		if r.Method == http.MethodGet && rec.statusCode >= http.StatusOK && rec.statusCode < 300 {
 			err := c.client.Set(ctx, r.RequestURI, rec.body.String(), c.ttl).Err()
 			if err != nil {
 				log.Printf("Error setting cache: %v", err)
 			}
 		}
+
 	})
 }
 
