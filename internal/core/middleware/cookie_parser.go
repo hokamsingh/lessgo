@@ -11,6 +11,8 @@ func NewCookieParser() *CookieParser {
 	return &CookieParser{}
 }
 
+type Cookies string
+
 func (cp *CookieParser) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookies := r.Cookies()
@@ -18,7 +20,8 @@ func (cp *CookieParser) Handle(next http.Handler) http.Handler {
 		for _, cookie := range cookies {
 			cookieMap[cookie.Name] = cookie.Value
 		}
-		r = r.WithContext(context.WithValue(r.Context(), "cookies", cookieMap))
+		cookiesKey := Cookies("cookies")
+		r = r.WithContext(context.WithValue(r.Context(), cookiesKey, cookieMap))
 		next.ServeHTTP(w, r)
 	})
 }
