@@ -56,7 +56,22 @@ func (c *Context) JSON(status int, v interface{}) {
 	}
 	c.Res.Header().Set("Content-Type", "application/json")
 	c.Res.WriteHeader(status)
-	json.NewEncoder(c.Res).Encode(v)
+	// Check if v is a string and if it's a valid JSON string
+	if str, ok := v.(string); ok {
+		// Check if the string is a valid JSON by attempting to unmarshal it
+		var temp interface{}
+		if err := json.Unmarshal([]byte(str), &temp); err == nil {
+			// Valid JSON string, write it directly without re-encoding
+			c.Res.Write([]byte(str))
+		} else {
+			// Invalid JSON string, encode it normally as a string
+			json.NewEncoder(c.Res).Encode(v)
+		}
+	} else {
+		// For non-string types, encode normally
+		json.NewEncoder(c.Res).Encode(v)
+	}
+
 	c.responseSent = true
 	c.Res.(http.Flusher).Flush() // Ensures the data is sent to the client
 }
