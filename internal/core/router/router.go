@@ -107,15 +107,37 @@ func WithCORS(options middleware.CORSOptions) Option {
 	}
 }
 
+type RateLimiterType = middleware.RateLimiterType
+
+const (
+	InMemory RateLimiterType = iota
+	RedisBacked
+)
+
 // WithRateLimiter enables rate limiting middleware with the specified limit and interval.
 // This option configures the rate limiter for the router.
 //
 // Example usage:
 //
 //	r := router.NewRouter(router.WithRateLimiter(100, time.Minute))
-func WithRateLimiter(limit int, interval, cleanupInterval time.Duration) Option {
+func WithInMemoryRateLimiter(NumShards int, Limit int, Interval time.Duration, CleanupInterval time.Duration) Option {
 	return func(r *Router) {
-		rateLimiter := middleware.NewRateLimiter(limit, interval, cleanupInterval)
+		config := middleware.NewInMemoryConfig(NumShards, Limit, Interval, CleanupInterval)
+		rateLimiter := middleware.NewRateLimiter(InMemory, config)
+		r.Use(rateLimiter)
+	}
+}
+
+// WithRateLimiter enables rate limiting middleware with the specified limit and interval.
+// This option configures the rate limiter for the router.
+//
+// Example usage:
+//
+//	r := router.NewRouter(router.WithRateLimiter(100, time.Minute))
+func WithRedisRateLimiter(addr string, limit int, interval time.Duration) Option {
+	return func(r *Router) {
+		config := middleware.NewRedisConfig(addr, limit, interval)
+		rateLimiter := middleware.NewRateLimiter(RedisBacked, config)
 		r.Use(rateLimiter)
 	}
 }
@@ -159,9 +181,9 @@ func WithJSONParser(options middleware.ParserOptions) Option {
 //
 // Note: Ensure that the Redis server is running and accessible at the specified
 // address.
-func WithCaching(redisAddr string, ttl time.Duration) Option {
+func WithCaching(redisAddr string, ttl time.Duration, cacheControl bool) Option {
 	return func(r *Router) {
-		caching := middleware.NewCaching(redisAddr, ttl)
+		caching := middleware.NewCaching(redisAddr, ttl, cacheControl)
 		r.Use(caching)
 	}
 }

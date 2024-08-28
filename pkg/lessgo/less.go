@@ -149,14 +149,31 @@ func WithCORS(options middleware.CORSOptions) router.Option {
 	return router.WithCORS(options)
 }
 
+type RateLimiterType = middleware.RateLimiterType
+
+const (
+	InMemory RateLimiterType = iota
+	RedisBacked
+)
+
 // WithRateLimiter enables rate limiting middleware with the specified limit and interval.
 // This option configures the rate limiter for the router.
 //
 // Example usage:
 //
 //	r := router.NewRouter(router.WithRateLimiter(100, time.Minute))
-func WithRateLimiter(limit int, interval, cleanupInterval time.Duration) router.Option {
-	return router.WithRateLimiter(limit, interval, cleanupInterval)
+func WithInMemoryRateLimiter(NumShards int, Limit int, Interval time.Duration, CleanupInterval time.Duration) router.Option {
+	return router.WithInMemoryRateLimiter(NumShards, Limit, Interval, CleanupInterval)
+}
+
+// WithRateLimiter enables rate limiting middleware with the specified limit and interval.
+// This option configures the rate limiter for the router.
+//
+// Example usage:
+//
+//	r := router.NewRouter(router.WithRateLimiter(100, time.Minute))
+func WithRedisRateLimiter(addr string, limit int, interval time.Duration) router.Option {
+	return router.WithRedisRateLimiter(addr, limit, interval)
 }
 
 type ParserOptions = middleware.ParserOptions
@@ -221,8 +238,8 @@ func WithFileUpload(uploadDir string) router.Option {
 //
 // Note: Ensure that the Redis server is running and accessible at the specified
 // address.
-func WithCaching(redisAddr string, ttl time.Duration) router.Option {
-	return router.WithCaching(redisAddr, ttl)
+func WithCaching(redisAddr string, ttl time.Duration, cacheControl bool) router.Option {
+	return router.WithCaching(redisAddr, ttl, cacheControl)
 }
 
 // WithCsrf is an option function that enables CSRF protection for the router.
