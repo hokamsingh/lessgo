@@ -74,7 +74,7 @@ func (c *Client) readPump() {
 		// Parse and handle different events
 		if bytes.HasPrefix(message, []byte("join_room:")) {
 			roomName := string(message[len("join_room:"):])
-			c.hub.handleJoinRoom(c, roomName)
+			c.hub.HandleJoinRoom(c, roomName)
 			// Send confirmation back to client
 			confirmationMessage := "join_room_success:" + roomName
 			c.send <- []byte(confirmationMessage)
@@ -234,13 +234,13 @@ func (h *Hub) joinRoom(client *Client, room string) {
 	}
 }
 
-func (h *Hub) leaveRoom(client *Client, room string) {
+func (h *Hub) LeaveRoom(client *Client, room string) {
 	if _, exists := h.rooms[room]; exists {
 		delete(h.rooms[room], client)
 	}
 }
 
-func (h *Hub) broadcastToRoom(room string, message []byte) {
+func (h *Hub) BroadcastToRoom(room string, message []byte) {
 	if clients, exists := h.rooms[room]; exists {
 		for client := range clients {
 			client.send <- message
@@ -248,12 +248,12 @@ func (h *Hub) broadcastToRoom(room string, message []byte) {
 	}
 }
 
-func (c *Client) emit(event string, data []byte) {
+func (c *Client) Emit(event string, data []byte) {
 	message := append([]byte(event+": "), data...)
 	c.send <- message
 }
 
-func (h *Hub) handleJoinRoom(client *Client, roomName string) {
+func (h *Hub) HandleJoinRoom(client *Client, roomName string) {
 	h.createRoom(roomName)
 	h.joinRoom(client, roomName)
 }
@@ -268,7 +268,7 @@ func newHub() *Hub {
 	}
 }
 
-func (h *Hub) run() {
+func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
@@ -301,7 +301,7 @@ func (wss *WebSocketServer) NewWsServer(addr string) {
 	var _addr = flag.String("addr", ":8080", "http service address")
 	flag.Parse()
 	hub := newHub()
-	go hub.run()
+	go hub.Run()
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
