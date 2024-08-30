@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/hokamsingh/lessgo/internal/core/context"
 	"github.com/hokamsingh/lessgo/internal/core/middleware"
@@ -182,9 +183,9 @@ func WithJSONParser(options middleware.ParserOptions) Option {
 //
 // Note: Ensure that the Redis server is running and accessible at the specified
 // address.
-func WithCaching(redisAddr string, ttl time.Duration, cacheControl bool) Option {
+func WithCaching(client *redis.Client, ttl time.Duration, cacheControl bool) Option {
 	return func(r *Router) {
-		caching := middleware.NewCaching(redisAddr, ttl, cacheControl)
+		caching := middleware.NewCaching(client, ttl, cacheControl)
 		r.Use(caching)
 	}
 }

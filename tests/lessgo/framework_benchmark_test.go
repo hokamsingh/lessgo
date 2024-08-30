@@ -22,13 +22,14 @@ func BenchmarkHandler(b *testing.B) {
 	size, _ := LessGo.ConvertToBytes(int64(1024), LessGo.Kilobytes)
 	parserOptions := LessGo.NewParserOptions(size * 5)
 
+	rClient := LessGo.NewRedisClient("localhost:6379")
 	App := LessGo.App(
 		LessGo.WithCORS(*corsOptions),
 		LessGo.WithJSONParser(*parserOptions),
 		LessGo.WithCookieParser(),
 		LessGo.WithCsrf(),
 		LessGo.WithXss(),
-		LessGo.WithCaching("redis:6379", 5*time.Minute, true),
+		LessGo.WithCaching(rClient, 5*time.Minute, true),
 	)
 
 	// Add a simple /ping route

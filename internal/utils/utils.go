@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
@@ -10,7 +11,10 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
 	"unicode"
+
+	"github.com/go-redis/redis/v8"
 )
 
 func GetFolderPath(folderName string) (string, error) {
@@ -129,4 +133,16 @@ func Assert(guard bool, text string) {
 	if !guard {
 		panic(text)
 	}
+}
+
+func NewRedisClient(redisAddr string) *redis.Client {
+	ctx := context.Background()
+	client := redis.NewClient(&redis.Options{
+		Addr: redisAddr, // e.g., "localhost:6379"
+	})
+	_, err := client.Ping(ctx).Result()
+	if err != nil {
+		log.Fatalf("Could not connect to Redis: %v", err)
+	}
+	return client
 }

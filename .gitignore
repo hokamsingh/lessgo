@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+*.yml
 
 # Output of the go coverage tool
 *.out
@@ -45,3 +46,5 @@ Thumbs.db
 # Docker files
 Dockerfile
 docker-compose.yml
+
+.air.toml

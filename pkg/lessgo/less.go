@@ -3,6 +3,7 @@ package LessGo
 import (
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/hokamsingh/lessgo/internal/core/concurrency"
 	"github.com/hokamsingh/lessgo/internal/core/config"
 	"github.com/hokamsingh/lessgo/internal/core/context"
@@ -238,8 +239,8 @@ func WithFileUpload(uploadDir string, maxFileSize int64, allowedExts []string) r
 //
 // Note: Ensure that the Redis server is running and accessible at the specified
 // address.
-func WithCaching(redisAddr string, ttl time.Duration, cacheControl bool) router.Option {
-	return router.WithCaching(redisAddr, ttl, cacheControl)
+func WithCaching(redisClient *redis.Client, ttl time.Duration, cacheControl bool) router.Option {
+	return router.WithCaching(redisClient, ttl, cacheControl)
 }
 
 // WithCsrf is an option function that enables CSRF protection for the router.
@@ -317,11 +318,6 @@ func WithTemplateRendering(templateDir string) router.Option {
 	return router.WithTemplateRendering(templateDir)
 }
 
-// // ServeStatic creates a file server handler to serve static files
-// func ServeStatic(pathPrefix, dir string) http.Handler {
-// 	return router.ServeStatic(pathPrefix, dir)
-// }
-
 func RegisterModules(r *router.Router, modules []module.IModule) error {
 	return di.RegisterModules(r, modules)
 }
@@ -381,4 +377,8 @@ const (
 func ConvertToBytes(size int64, unit SizeUnit) (int64, error) {
 	s, err := utils.ConvertToBytes(float64(size), utils.SizeUnit(unit))
 	return int64(s), err
+}
+
+func NewRedisClient(redisAddr string) *redis.Client {
+	return utils.NewRedisClient(redisAddr)
 }

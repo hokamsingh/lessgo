@@ -18,17 +18,7 @@ type Caching struct {
 	cacheControl bool
 }
 
-func NewCaching(redisAddr string, ttl time.Duration, cacheControl bool) *Caching {
-	ctx := context.Background()
-	client := redis.NewClient(&redis.Options{
-		Addr: redisAddr, // e.g., "localhost:6379"
-		// Username: "",
-		Password: "secret",
-	})
-	_, err := client.Ping(ctx).Result()
-	if err != nil {
-		log.Fatalf("Could not connect to Redis: %v", err)
-	}
+func NewCaching(client *redis.Client, ttl time.Duration, cacheControl bool) *Caching {
 	return &Caching{
 		client:       client,
 		ttl:          ttl,
@@ -76,14 +66,14 @@ func (c *Caching) Handle(next http.Handler) http.Handler {
 		}
 
 		// Capture response
-		rec := &responseRecorder{ResponseWriter: w, statusCode: http.StatusOK, body: new(bytes.Buffer)}
+		rec := &ResponseRecorder{ResponseWriter: w, StatusCode: http.StatusOK, Body: new(bytes.Buffer)}
 		next.ServeHTTP(rec, r)
 
 		// Cache only successful responses (status code 200)
-		if r.Method == http.MethodGet && rec.statusCode == http.StatusOK {
+		if r.Method == http.MethodGet && rec.StatusCode == http.StatusOK {
 			cachedResponse := cachedResponse{
 				Headers: rec.Header(),
-				Body:    rec.body.String(),
+				Body:    rec.Body.String(),
 			}
 
 			var buffer bytes.Buffer
@@ -108,24 +98,24 @@ type cachedResponse struct {
 	Body    string
 }
 
-type responseRecorder struct {
+type ResponseRecorder struct {
 	http.ResponseWriter
-	statusCode int
-	body       *bytes.Buffer
+	StatusCode int
+	Body       *bytes.Buffer
 }
 
-func (rec *responseRecorder) Write(p []byte) (int, error) {
-	rec.body.Write(p)                  // Write to the buffer
+func (rec *ResponseRecorder) Write(p []byte) (int, error) {
+	rec.Body.Write(p)                  // Write to the buffer
 	return rec.ResponseWriter.Write(p) // Stream response to client
 }
 
-func (rec *responseRecorder) WriteHeader(statusCode int) {
-	rec.statusCode = statusCode
+func (rec *ResponseRecorder) WriteHeader(statusCode int) {
+	rec.StatusCode = statusCode
 	rec.ResponseWriter.WriteHeader(statusCode)
 }
 
 // Implement the Flush method
-func (rec *responseRecorder) Flush() {
+func (rec *ResponseRecorder) Flush() {
 	if flusher, ok := rec.ResponseWriter.(http.Flusher); ok {
 		flusher.Flush()
 	}
