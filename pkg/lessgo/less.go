@@ -322,18 +322,17 @@ func WithTemplateRendering(templateDir string) router.Option {
 // 	return router.ServeStatic(pathPrefix, dir)
 // }
 
+func RegisterModules(r *router.Router, modules []module.IModule) error {
+	return di.RegisterModules(r, modules)
+}
+
+func RegisterDependencies(dependencies []interface{}) {
+	di.RegisterDependencies(dependencies)
+}
+
 // Resolves the path of specified folder
 func GetFolderPath(folderName string) (string, error) {
 	return utils.GetFolderPath(folderName)
-}
-
-func RegisterModuleRoutes(r *router.Router, module module.Module) {
-	utils.RegisterModuleRoutes(r, &module)
-}
-
-// RegisterModules iterates over a slice of modules and registers their routes.
-func RegisterModules(r *router.Router, modules []IModule) error {
-	return utils.RegisterModules(r, modules)
 }
 
 func GenerateRandomToken(len int) (string, error) {
@@ -356,11 +355,6 @@ const Sequential = 1
 
 func NewTaskBuilder(mode int) *TaskBuilder {
 	return concurrency.NewTaskBuilder(concurrency.ExecutionMode(mode))
-}
-
-// RegisterDependencies registers dependencies into container
-func RegisterDependencies(dependencies []interface{}) {
-	utils.RegisterDependencies(dependencies)
 }
 
 type SizeUnit string

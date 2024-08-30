@@ -47,9 +47,13 @@ Usage:
 package di
 
 import (
+	"fmt"
 	"log"
 
+	"github.com/hokamsingh/lessgo/internal/core/controller"
 	scheduler "github.com/hokamsingh/lessgo/internal/core/job"
+	"github.com/hokamsingh/lessgo/internal/core/module"
+	"github.com/hokamsingh/lessgo/internal/core/router"
 	"go.uber.org/dig"
 )
 
@@ -141,4 +145,34 @@ func (c *Container) InvokeScheduler(fn func(scheduler.Scheduler) error) error {
 			log.Fatalf("Error invoking scheduler: %v", err)
 		}
 	})
+}
+
+// RegisterDependencies registers dependencies into container
+func RegisterDependencies(dependencies []interface{}) {
+	container := NewContainer()
+	for _, dep := range dependencies {
+		if err := container.Register(dep); err != nil {
+			log.Fatalf("Error registering dependencies: %v", err)
+		}
+	}
+}
+
+const (
+	Reset   = "\033[0m"
+	Red     = "\033[31m"
+	Green   = "\033[32m"
+	Yellow  = "\033[33m"
+	Blue    = "\033[34m"
+	Purple  = "\033[35m"
+	SkyBlue = "\033[36m"
+)
+
+// RegisterModules iterates over a slice of modules and registers their routes.
+func RegisterModules(r *router.Router, modules []module.IModule) error {
+	for _, module := range modules {
+		controller.RegisterModuleRoutes(r, module)
+		l := fmt.Sprintf("%sLessGo :: Registered module %s%s%s", Green, Yellow, module.GetName(), Reset)
+		log.Println(l)
+	}
+	return nil
 }

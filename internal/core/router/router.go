@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/hokamsingh/lessgo/internal/core/context"
 	"github.com/hokamsingh/lessgo/internal/core/middleware"
+	"github.com/hokamsingh/lessgo/internal/utils"
 )
 
 // Router represents an HTTP router with middleware support and error handling.
@@ -317,6 +318,7 @@ func (r *Router) Use(m middleware.Middleware) {
 //		ctx.JSON(http.StatusOK, map[string]string{"message": "pong"})
 //	})
 func (r *Router) AddRoute(path string, handler CustomHandler) {
+	utils.Assert(path[0] == '/', "path must begin with '/'")
 	// Create an HTTP handler function that uses the custom context
 	handlerFunc := WrapCustomHandler(handler)
 	// Wrap the handler function with error handling and logging

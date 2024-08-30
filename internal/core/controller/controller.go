@@ -7,6 +7,9 @@ as well as a BaseController struct that provides a default implementation of the
 package controller
 
 import (
+	"fmt"
+
+	"github.com/hokamsingh/lessgo/internal/core/module"
 	"github.com/hokamsingh/lessgo/internal/core/router"
 )
 
@@ -50,4 +53,16 @@ type BaseController struct {
 //	}
 func (bc *BaseController) RegisterRoutes(r *router.Router) {
 
+}
+
+// RegisterModuleRoutes is a helper function to register routes for a module.
+// It will panic if there is an error during registration or if a controller does not implement the required interface.
+func RegisterModuleRoutes(r *router.Router, m module.IModule) {
+	for _, ctrl := range m.GetControllers() {
+		c, ok := ctrl.(Controller)
+		if !ok {
+			panic(fmt.Sprintf("Controller %T does not implement controller.Controller interface", ctrl))
+		}
+		c.RegisterRoutes(r)
+	}
 }

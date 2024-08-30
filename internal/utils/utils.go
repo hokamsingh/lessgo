@@ -10,11 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/hokamsingh/lessgo/internal/core/controller"
-	"github.com/hokamsingh/lessgo/internal/core/di"
-	"github.com/hokamsingh/lessgo/internal/core/module"
-	"github.com/hokamsingh/lessgo/internal/core/router"
+	"unicode"
 )
 
 func GetFolderPath(folderName string) (string, error) {
@@ -33,18 +29,6 @@ func GetFolderPath(folderName string) (string, error) {
 	}
 
 	return folderPath, nil
-}
-
-// RegisterModuleRoutes is a helper function to register routes for a module.
-// It will panic if there is an error during registration or if a controller does not implement the required interface.
-func RegisterModuleRoutes(r *router.Router, m module.IModule) {
-	for _, ctrl := range m.GetControllers() {
-		c, ok := ctrl.(controller.Controller)
-		if !ok {
-			panic(fmt.Sprintf("Controller %T does not implement controller.Controller interface", ctrl))
-		}
-		c.RegisterRoutes(r)
-	}
 }
 
 // func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface{}) {
@@ -86,16 +70,6 @@ const (
 	SkyBlue = "\033[36m"
 )
 
-// RegisterModules iterates over a slice of modules and registers their routes.
-func RegisterModules(r *router.Router, modules []module.IModule) error {
-	for _, module := range modules {
-		RegisterModuleRoutes(r, module)
-		l := fmt.Sprintf("%sLessGo :: Registered module %s%s%s", Green, Yellow, module.GetName(), Reset)
-		log.Println(l)
-	}
-	return nil
-}
-
 // GenerateRandomToken generates a random unique token of the specified length in bytes
 func GenerateRandomToken(length int) (string, error) {
 	// Create a byte slice to hold the random data
@@ -109,16 +83,6 @@ func GenerateRandomToken(length int) (string, error) {
 
 	// Convert the random bytes to a hexadecimal string
 	return hex.EncodeToString(token), nil
-}
-
-// RegisterDependencies registers dependencies into container
-func RegisterDependencies(dependencies []interface{}) {
-	container := di.NewContainer()
-	for _, dep := range dependencies {
-		if err := container.Register(dep); err != nil {
-			log.Fatalf("Error registering dependencies: %v", err)
-		}
-	}
 }
 
 type SizeUnit string
@@ -143,5 +107,26 @@ func ConvertToBytes(size float64, unit SizeUnit) (int64, error) {
 		return int64(size * 1024 * 1024 * 1024), nil
 	default:
 		return 0, errors.New("invalid size unit")
+	}
+}
+
+func IsASCII(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] > unicode.MaxASCII {
+			return false
+		}
+	}
+	return true
+}
+
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+func EscapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
+}
+
+func Assert(guard bool, text string) {
+	if !guard {
+		panic(text)
 	}
 }

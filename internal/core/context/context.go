@@ -8,8 +8,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/mux"
+	"github.com/hokamsingh/lessgo/internal/utils"
 )
 
 // Context holds the request and response writer and provides utility methods.
@@ -296,4 +298,20 @@ func (c *Context) GetHeader(name string) string {
 // SetHeader sets a header value for the response.
 func (c *Context) SetHeader(name, value string) {
 	c.Res.Header().Set(name, value)
+}
+
+// Status sets the HTTP response code.
+func (c *Context) Status(code int) {
+	c.Res.WriteHeader(code)
+}
+
+// FileAttachment writes the specified file into the body stream in an efficient way
+// On the client side, the file will typically be downloaded with the given filename
+func (c *Context) FileAttachment(filepath, filename string) {
+	if utils.IsASCII(filename) {
+		c.Res.Header().Set("Content-Disposition", `attachment; filename="`+utils.EscapeQuotes(filename)+`"`)
+	} else {
+		c.Res.Header().Set("Content-Disposition", `attachment; filename*=UTF-8''`+url.QueryEscape(filename))
+	}
+	http.ServeFile(c.Res, c.Req, filepath)
 }

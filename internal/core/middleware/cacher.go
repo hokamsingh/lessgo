@@ -22,6 +22,8 @@ func NewCaching(redisAddr string, ttl time.Duration, cacheControl bool) *Caching
 	ctx := context.Background()
 	client := redis.NewClient(&redis.Options{
 		Addr: redisAddr, // e.g., "localhost:6379"
+		// Username: "",
+		Password: "secret",
 	})
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
