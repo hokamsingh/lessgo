@@ -22,6 +22,7 @@ dist/
 app/
 cmd/
 uploads/
+temp/
 
 # Go modules and cache
 vendor/

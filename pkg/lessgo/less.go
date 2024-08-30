@@ -377,7 +377,9 @@ const (
 // )
 func ConvertToBytes(size int64, unit SizeUnit) int64 {
 	s, err := utils.ConvertToBytes(float64(size), utils.SizeUnit(unit))
-	log.Printf("Failed to convert bytes: %v", err)
+	if err != nil {
+		log.Fatalf("Failed to convert bytes: %v", err)
+	}
 	return int64(s)
 }
 
