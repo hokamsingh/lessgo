@@ -120,7 +120,10 @@ func (c *Context) Error(status int, message string) {
 	}
 	c.Res.Header().Set("Content-Type", "application/json")
 	c.Res.WriteHeader(status)
-	json.NewEncoder(c.Res).Encode(map[string]string{"error": message})
+	err := json.NewEncoder(c.Res).Encode(map[string]string{"error": message})
+	if err != nil {
+		log.Fatal("can not encode json")
+	}
 	// Close the response after sending the error
 	c.responseSent = true
 	c.Res.(http.Flusher).Flush() // Ensures the data is sent to the client

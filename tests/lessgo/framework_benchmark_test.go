@@ -19,7 +19,7 @@ func BenchmarkHandler(b *testing.B) {
 		[]string{"Content-Type", "Authorization"},
 	)
 
-	size, _ := LessGo.ConvertToBytes(int64(1024), LessGo.Kilobytes)
+	size := LessGo.ConvertToBytes(int64(1024), LessGo.Kilobytes)
 	parserOptions := LessGo.NewParserOptions(size * 5)
 
 	rClient := LessGo.NewRedisClient("localhost:6379")

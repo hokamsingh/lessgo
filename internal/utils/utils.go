@@ -17,11 +17,12 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func GetFolderPath(folderName string) (string, error) {
+func GetFolderPath(folderName string) string {
 	// Get the current working directory
 	cwd, err := os.Getwd()
 	if err != nil {
-		return "", err
+		log.Panicf("Failed to get folder path: %v", err)
+		return ""
 	}
 
 	// Join the CWD with the folder name
@@ -29,10 +30,10 @@ func GetFolderPath(folderName string) (string, error) {
 
 	// Check if the folder exists
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
-		return "", err
+		log.Panicf("folder does not exists: %v", err)
+		return ""
 	}
-
-	return folderPath, nil
+	return folderPath
 }
 
 // func RegisterModuleRoutes(container *di.Container, r *router.Router, _ interface{}) {

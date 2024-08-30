@@ -1,6 +1,7 @@
 package LessGo
 
 import (
+	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -327,7 +328,7 @@ func RegisterDependencies(dependencies []interface{}) {
 }
 
 // Resolves the path of specified folder
-func GetFolderPath(folderName string) (string, error) {
+func GetFolderPath(folderName string) string {
 	return utils.GetFolderPath(folderName)
 }
 
@@ -374,9 +375,10 @@ const (
 //	Gigabytes SizeUnit = "gigabytes"
 //
 // )
-func ConvertToBytes(size int64, unit SizeUnit) (int64, error) {
+func ConvertToBytes(size int64, unit SizeUnit) int64 {
 	s, err := utils.ConvertToBytes(float64(size), utils.SizeUnit(unit))
-	return int64(s), err
+	log.Printf("Failed to convert bytes: %v", err)
+	return int64(s)
 }
 
 func NewRedisClient(redisAddr string) *redis.Client {

@@ -21,7 +21,7 @@ func DiscoverModules() ([]func() module.IModule, error) {
 	pluginDir := "app/plugins"
 
 	// Ensure the plugin directory exists
-	err := os.MkdirAll(pluginDir, os.ModePerm)
+	err := os.MkdirAll(pluginDir, 0750)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create plugins directory: %w", err)
 	}

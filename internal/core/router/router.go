@@ -343,7 +343,20 @@ func (r *Router) Start(addr string) error {
 	for _, m := range r.middleware {
 		finalHandler = m.Handle(finalHandler)
 	}
-	return http.ListenAndServe(addr, finalHandler)
+
+	server := &http.Server{
+		Addr:         addr,
+		Handler:      finalHandler,
+		ReadTimeout:  5 * time.Second,   // Defaults timeout
+		WriteTimeout: 10 * time.Second,  // Defaults timeout
+		IdleTimeout:  120 * time.Second, // Defaults timeout
+	}
+
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
+	return err
 }
 
 // Start http server

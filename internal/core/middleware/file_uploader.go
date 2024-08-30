@@ -21,7 +21,7 @@ type FileUploadMiddleware struct {
 // NewFileUploadMiddleware creates a new instance of FileUploadMiddleware
 func NewFileUploadMiddleware(uploadDir string, maxFileSize int64, allowedExts []string) *FileUploadMiddleware {
 	// Ensure the upload directory exists
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(uploadDir, 0750); err != nil {
 		log.Fatalf("Failed to create upload directory: %v", err)
 	}
 
@@ -71,7 +71,14 @@ func (f *FileUploadMiddleware) Handle(next http.Handler) http.Handler {
 		filePath := filepath.Join(f.uploadDir, fileName)
 
 		// Create the file
-		destFile, err := os.Create(filePath)
+		cleanFilePath := filepath.Clean(filePath)
+		if !strings.HasPrefix(cleanFilePath, f.uploadDir) {
+			log.Panic("invalid file path")
+			log.Printf("Error creating file: %v", err)
+			return
+		}
+
+		destFile, err := os.Create(cleanFilePath)
 		if err != nil {
 			http.Error(w, "Unable to save file", http.StatusInternalServerError)
 			log.Printf("Error creating file: %v", err)
