@@ -452,28 +452,33 @@ func PathPrefix(path string) {
 }
 
 // Get registers a handler for GET requests.
-func (r *Router) Get(path string, handler CustomHandler) {
+func (r *Router) Get(path string, handler CustomHandler) *Router {
 	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "GET")))
+	return r
 }
 
 // Post registers a handler for POST requests.
-func (r *Router) Post(path string, handler CustomHandler) {
+func (r *Router) Post(path string, handler CustomHandler) *Router {
 	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "POST")))
+	return r
 }
 
 // Put registers a handler for PUT requests.
-func (r *Router) Put(path string, handler CustomHandler) {
+func (r *Router) Put(path string, handler CustomHandler) *Router {
 	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "PUT")))
+	return r
 }
 
 // Delete registers a handler for DELETE requests.
-func (r *Router) Delete(path string, handler CustomHandler) {
+func (r *Router) Delete(path string, handler CustomHandler) *Router {
 	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "DELETE")))
+	return r
 }
 
 // Patch registers a handler for PATCH requests.
-func (r *Router) Patch(path string, handler CustomHandler) {
+func (r *Router) Patch(path string, handler CustomHandler) *Router {
 	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "PATCH")))
+	return r
 }
 
 // WrapCustomHandler converts a CustomHandler to http.HandlerFunc.
