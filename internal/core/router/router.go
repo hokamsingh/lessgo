@@ -29,11 +29,25 @@ type Router struct {
 type Option func(*Router)
 
 // Default CORS options
-var defCorsOpts = middleware.CORSOptions{
+var _ = middleware.CORSOptions{
 	AllowedOrigins: []string{"*"},
 	AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 	AllowedHeaders: []string{"Content-Type", "Authorization"},
 }
+
+// HTTPMethod represents an HTTP method as a custom type.
+type HTTPMethod string
+
+// Define constants for each HTTP method.
+const (
+	GET     HTTPMethod = "GET"
+	POST    HTTPMethod = "POST"
+	PUT     HTTPMethod = "PUT"
+	DELETE  HTTPMethod = "DELETE"
+	OPTIONS HTTPMethod = "OPTIONS"
+	HEAD    HTTPMethod = "HEAD"
+	PATCH   HTTPMethod = "PATCH"
+)
 
 var (
 	appInstance *Router
@@ -444,7 +458,7 @@ type CustomHandler func(ctx *context.Context)
 
 // Server Swagger
 func (r *Router) Swagger(path string, handler http.HandlerFunc) {
-	r.AddRoute(path, UnWrapCustomHandler(r.withContext(UnWrapCustomHandler(handler), "GET")))
+	r.AddRoute(path, UnWrapCustomHandler(r.withContext(UnWrapCustomHandler(handler), string(GET))))
 }
 
 func PathPrefix(path string) {
@@ -453,31 +467,31 @@ func PathPrefix(path string) {
 
 // Get registers a handler for GET requests.
 func (r *Router) Get(path string, handler CustomHandler) *Router {
-	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "GET")))
+	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, string(GET))))
 	return r
 }
 
 // Post registers a handler for POST requests.
 func (r *Router) Post(path string, handler CustomHandler) *Router {
-	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "POST")))
+	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, string(POST))))
 	return r
 }
 
 // Put registers a handler for PUT requests.
 func (r *Router) Put(path string, handler CustomHandler) *Router {
-	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "PUT")))
+	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, string(PUT))))
 	return r
 }
 
 // Delete registers a handler for DELETE requests.
 func (r *Router) Delete(path string, handler CustomHandler) *Router {
-	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "DELETE")))
+	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, string(DELETE))))
 	return r
 }
 
 // Patch registers a handler for PATCH requests.
 func (r *Router) Patch(path string, handler CustomHandler) *Router {
-	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, "PATCH")))
+	r.AddRoute(path, UnWrapCustomHandler(r.withContext(handler, string(PATCH))))
 	return r
 }
 
