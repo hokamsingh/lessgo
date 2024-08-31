@@ -1,3 +1,90 @@
+/*
+Package LessGo is a minimalist web framework for building fast, scalable, and lightweight web applications in Go.
+
+LessGo is designed to be simple and easy to use, providing essential features for web development without the overhead of large, complex frameworks. It emphasizes speed, flexibility, and a small footprint, making it ideal for developers who want to build web applications quickly while maintaining full control over their projects.
+
+# Features
+
+- **Routing**: LessGo provides a flexible and powerful routing mechanism for handling HTTP requests.
+- **Middleware**: Support for middleware allows you to add custom functionality to your request pipeline.
+- **Content Negotiation**: Built-in support for content negotiation, enabling your API to serve different content types like JSON, XML, etc.
+- **Environment Configuration**: Load environment variables and .env files easily for configuration management.
+- **Pluggable Architecture**: Extend LessGo with custom plugins and middleware for additional functionality.
+- **CORS Support**: Configure CORS settings for your API.
+- **Redis Integration**: Easily integrate Redis for caching, rate limiting, and other use cases.
+- **Static File Serving**: Serve static files like HTML, CSS, JavaScript, or images.
+- **Security**: CSRF and XSS protection are built-in to enhance the security of your applications.
+- **Rate Limiting**: Implement rate limiting to protect your application from abuse.
+
+# Usage
+
+Here's an example of how to use the LessGo framework in a basic web server setup:
+
+	package main
+
+	import (
+		"log"
+		"time"
+		"github.com/yourusername/LessGo/app/src"
+		LessGo "github.com/yourusername/LessGo/pkg/lessgo"
+	)
+
+	func main() {
+		// Configuration setup
+		cfg := LessGo.LoadConfig()
+		serverPort := cfg.Get("SERVER_PORT", "8080")
+		env := cfg.Get("ENV", "development")
+		addr := ":" + serverPort
+
+		// Define CORS options
+		corsOptions := LessGo.NewCorsOptions(
+			[]string{"*"},
+			[]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			[]string{"Content-Type", "Authorization"},
+		)
+
+		// Initialize Redis client
+		rClient := LessGo.NewRedisClient("localhost:6379")
+
+		// Initialize app with middlewares
+		App := LessGo.App(
+			LessGo.WithCORS(*corsOptions),
+			LessGo.WithJSONParser(LessGo.NewParserOptions(5*1024*1024)), // 5MB limit
+			LessGo.WithCookieParser(),
+			LessGo.WithCsrf(),
+			LessGo.WithXss(),
+			LessGo.WithCaching(rClient, 5*time.Minute, true),
+			LessGo.WithRedisRateLimiter(rClient, 100, 1*time.Second),
+		)
+
+		// Serve static files
+		App.ServeStatic("/static/", LessGo.GetFolderPath("uploads"))
+
+		// Register modules and dependencies
+		LessGo.RegisterDependencies([]interface{}{src.NewRootService, src.NewRootModule})
+		LessGo.RegisterModules(App, []LessGo.IModule{src.NewRootModule(App)})
+
+		// Example route
+		App.Get("/ping", func(ctx *LessGo.Context) {
+			ctx.Send("pong")
+		})
+
+		// Start the server
+		log.Printf("Starting server on port %s in %s mode", serverPort, env)
+		if err := App.Listen(addr); err != nil {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}
+
+For more detailed documentation and examples, please visit the [official LessGo documentation](https://yourdocumentationurl.com).
+
+# Package Structure
+
+- **LessGo**: The core of the framework, providing the main application structure and utilities.
+- **LessGo/context**: Handles the request context, providing methods to respond with different content types.
+- **LessGo/middleware**: Contains built-in middleware functions for request handling.
+- **LessGo/config**: Manages configuration loading from environment variables and .env files.
+*/
 package LessGo
 
 import (
