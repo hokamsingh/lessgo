@@ -30,6 +30,7 @@ func BenchmarkHandler(b *testing.B) {
 		LessGo.WithCsrf(),
 		LessGo.WithXss(),
 		LessGo.WithCaching(rClient, 5*time.Minute, true),
+		LessGo.WithRedisRateLimiter(rClient, 100, 1*time.Second),
 	)
 
 	// Add a simple /ping route

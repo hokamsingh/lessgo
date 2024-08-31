@@ -82,9 +82,7 @@ func NewRateLimiter(limiterType RateLimiterType, config interface{}) *RateLimite
 	case RedisBacked:
 		ctx := context.Background()
 		cfg := config.(RedisConfig)
-		client := redis.NewClient(&redis.Options{
-			Addr: cfg.Addr,
-		})
+		client := &cfg.Client
 		_, err := client.Ping(ctx).Result()
 		if err != nil {
 			log.Fatalf("Could not connect to Redis: %v", err)
@@ -120,14 +118,14 @@ func NewInMemoryConfig(NumShards int, Limit int, Interval time.Duration, Cleanup
 
 // RedisConfig is the configuration for the Redis-backed rate limiter.
 type RedisConfig struct {
-	Addr     string
+	Client   redis.Client
 	Limit    int
 	Interval time.Duration
 }
 
-func NewRedisConfig(addr string, limit int, interval time.Duration) *RedisConfig {
+func NewRedisConfig(client *redis.Client, limit int, interval time.Duration) *RedisConfig {
 	return &RedisConfig{
-		Addr:     addr,
+		Client:   *client,
 		Limit:    limit,
 		Interval: interval,
 	}

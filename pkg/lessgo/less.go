@@ -178,8 +178,8 @@ func WithInMemoryRateLimiter(NumShards int, Limit int, Interval time.Duration, C
 // Example usage:
 //
 //	r := router.NewRouter(router.WithRateLimiter(100, time.Minute))
-func WithRedisRateLimiter(addr string, limit int, interval time.Duration) router.Option {
-	return router.WithRedisRateLimiter(addr, limit, interval)
+func WithRedisRateLimiter(client *redis.Client, limit int, interval time.Duration) router.Option {
+	return router.WithRedisRateLimiter(client, limit, interval)
 }
 
 type ParserOptions = middleware.ParserOptions

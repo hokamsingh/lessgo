@@ -139,9 +139,9 @@ func WithInMemoryRateLimiter(NumShards int, Limit int, Interval time.Duration, C
 // Example usage:
 //
 //	r := router.NewRouter(router.WithRateLimiter(100, time.Minute))
-func WithRedisRateLimiter(addr string, limit int, interval time.Duration) Option {
+func WithRedisRateLimiter(client *redis.Client, limit int, interval time.Duration) Option {
 	return func(r *Router) {
-		config := middleware.NewRedisConfig(addr, limit, interval)
+		config := middleware.NewRedisConfig(client, limit, interval)
 		rateLimiter := middleware.NewRateLimiter(RedisBacked, config)
 		r.Use(rateLimiter)
 	}
