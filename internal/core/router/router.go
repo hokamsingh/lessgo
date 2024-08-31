@@ -1,11 +1,14 @@
 package router
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
 
@@ -432,6 +435,10 @@ func (r *Router) withLogging(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func (r *Router) WithContentNegotiation(next http.HandlerFunc) http.HandlerFunc {
+	return ContentNegotiationHandler
+}
+
 // CustomHandler is a function type that takes a custom Context.
 type CustomHandler func(ctx *context.Context)
 
@@ -523,4 +530,69 @@ func (r *Router) ServeStatic(pathPrefix, dir string) {
 	}
 	fs := http.FileServer(http.Dir(absPath))
 	r.Mux.PathPrefix(pathPrefix).Handler(http.StripPrefix(pathPrefix, fs))
+}
+
+// Content negotiation
+const (
+	ContentTypeJSON = "application/json"
+	ContentTypeXML  = "application/xml"
+	ContentTypeHTML = "text/html"
+)
+
+func ContentNegotiationHandler(w http.ResponseWriter, r *http.Request) {
+	acceptHeader := r.Header.Get("Accept")
+	contentType := NegotiateContentType(acceptHeader)
+
+	var response []byte
+	var err error
+
+	// Prepare response based on content type
+	switch contentType {
+	case ContentTypeJSON:
+		w.Header().Set("Content-Type", ContentTypeJSON)
+		response, err = json.Marshal(map[string]string{"message": "Hello, JSON!"})
+	case ContentTypeXML:
+		w.Header().Set("Content-Type", ContentTypeXML)
+		response, err = xml.Marshal(map[string]string{"message": "Hello, XML!"})
+	case ContentTypeHTML:
+		w.Header().Set("Content-Type", ContentTypeHTML)
+		response = []byte("<html><body><h1>Hello, HTML!</h1></body></html>")
+	default:
+		// If no acceptable content type is found, return 406
+		http.Error(w, "Not Acceptable", http.StatusNotAcceptable)
+		return
+	}
+
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(response)
+}
+
+func NegotiateContentType(acceptHeader string) string {
+	// Default to JSON if nothing is specified
+	if acceptHeader == "" {
+		return ContentTypeJSON
+	}
+
+	// Split the Accept header into supported media types
+	acceptedTypes := strings.Split(acceptHeader, ",")
+
+	// Check for supported media types in order of preference
+	for _, acceptedType := range acceptedTypes {
+		acceptedType = strings.TrimSpace(strings.Split(acceptedType, ";")[0])
+		switch acceptedType {
+		case ContentTypeJSON:
+			return ContentTypeJSON
+		case ContentTypeXML:
+			return ContentTypeXML
+		case ContentTypeHTML:
+			return ContentTypeHTML
+		}
+	}
+
+	// Default to JSON if no match is found
+	return ContentTypeJSON
 }

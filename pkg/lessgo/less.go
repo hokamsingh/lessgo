@@ -19,6 +19,9 @@ import (
 	"github.com/hokamsingh/lessgo/internal/utils"
 )
 
+// Version
+const Version = "v1.0.2"
+
 // Expose core types
 
 // Controller defines the interface that all controllers in the application must implement.

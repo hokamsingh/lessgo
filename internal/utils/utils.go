@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strings"
@@ -75,21 +77,6 @@ const (
 	SkyBlue = "\033[36m"
 )
 
-// GenerateRandomToken generates a random unique token of the specified length in bytes
-func GenerateRandomToken(length int) (string, error) {
-	// Create a byte slice to hold the random data
-	token := make([]byte, length)
-
-	// Fill the byte slice with random data
-	_, err := rand.Read(token)
-	if err != nil {
-		return "", fmt.Errorf("failed to generate random token: %v", err)
-	}
-
-	// Convert the random bytes to a hexadecimal string
-	return hex.EncodeToString(token), nil
-}
-
 type SizeUnit string
 
 const (
@@ -139,11 +126,142 @@ func Assert(guard bool, text string) {
 func NewRedisClient(redisAddr string) *redis.Client {
 	ctx := context.Background()
 	client := redis.NewClient(&redis.Options{
-		Addr: redisAddr, // e.g., "localhost:6379"
+		Addr:     redisAddr, // e.g., "localhost:6379"
+		Password: "secret",
 	})
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
 		log.Fatalf("Could not connect to Redis: %v", err)
 	}
 	return client
+}
+
+// GenerateSalt creates a random salt of the given length.
+func GenerateSalt(length int) (string, error) {
+	salt := make([]byte, length)
+	_, err := rand.Read(salt)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(salt), nil
+}
+
+// HashPassword generates a hash for the given data using the provided salt.
+func HashPassword(data string, salt string, length int) (string, error) {
+	if len(salt) == 0 {
+		return "", errors.New("salt cannot be empty")
+	}
+	hashed := fmt.Sprintf("%x", data+salt) // Placeholder, replace with real hash function
+	return hashed[:length], nil
+}
+
+// GenerateRandomToken creates a random token of the specified length.
+func GenerateRandomToken(length int) (string, error) {
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	token := make([]byte, length)
+	for i := range token {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			return "", err
+		}
+		token[i] = letters[num.Int64()]
+	}
+	return string(token), nil
+}
+
+// MsToDay converts milliseconds to days.
+func MsToDay(ms int64) int64 {
+	return ms / (24 * 60 * 60 * 1000)
+}
+
+// MsToMin converts milliseconds to minutes.
+func MsToMin(ms int64) int64 {
+	return ms / (60 * 1000)
+}
+
+// MsToHr converts milliseconds to hours.
+func MsToHr(ms int64) int64 {
+	return ms / (60 * 60 * 1000)
+}
+
+// MsToSec converts milliseconds to seconds.
+func MsToSec(ms int64) int64 {
+	return ms / 1000
+}
+
+// MsToHuman converts milliseconds to a human-readable string.
+func MsToHuman(ms int64, maxUnit string) string {
+	var days, hours, minutes, seconds int64
+	switch maxUnit {
+	case "day":
+		days = MsToDay(ms)
+		hours = MsToHr(ms) % 24
+		minutes = MsToMin(ms) % 60
+		seconds = MsToSec(ms) % 60
+	case "hour":
+		hours = MsToHr(ms)
+		minutes = MsToMin(ms) % 60
+		seconds = MsToSec(ms) % 60
+	case "minute":
+		minutes = MsToMin(ms)
+		seconds = MsToSec(ms) % 60
+	case "second":
+		seconds = MsToSec(ms)
+	}
+
+	return fmt.Sprintf("%d days, %d hours, %d minutes, %d seconds", days, hours, minutes, seconds)
+}
+
+// Sleep pauses the execution for the given number of milliseconds.
+func Sleep(ms int64) {
+	time.Sleep(time.Duration(ms) * time.Millisecond)
+}
+
+// Retryable retries the provided function on failure with backoff.
+func Retryable(fn func() error, retries int, backoffType string, delay time.Duration) error {
+	var err error
+	for i := 0; i <= retries; i++ {
+		err = fn()
+		if err == nil {
+			return nil
+		}
+		if backoffType == "exponential" {
+			time.Sleep(delay * time.Duration(math.Pow(2, float64(i))))
+		} else {
+			time.Sleep(delay)
+		}
+	}
+	return err
+}
+
+// GenerateRange creates a range of numbers from start to end.
+func GenerateRange(start, end int) []int {
+	arr := make([]int, end-start+1)
+	for i := range arr {
+		arr[i] = start + i
+	}
+	return arr
+}
+
+// GetRandomIndex generates a random index between min and max.
+func GetRandomIndex(min, max int) (int, error) {
+	randIndex, err := rand.Int(rand.Reader, big.NewInt(int64(max-min)))
+	if err != nil {
+		return 0, err
+	}
+	return int(randIndex.Int64()) + min, nil
+}
+
+// ShuffleNumbers randomly shuffles a slice of numbers.
+func ShuffleNumbers(numbers []int) ([]int, error) {
+	shuffled := make([]int, len(numbers))
+	copy(shuffled, numbers)
+	for i := len(shuffled) - 1; i > 0; i-- {
+		j, err := GetRandomIndex(0, i+1)
+		if err != nil {
+			return nil, err
+		}
+		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+	}
+	return shuffled, nil
 }
