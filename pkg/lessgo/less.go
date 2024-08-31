@@ -220,7 +220,7 @@ func App(options ...router.Option) *Router {
 
 // New Cors Options.
 //
-// Example
+// Example (default to)
 //
 //	 corsOptions := LessGo.NewCorsOptions(
 //		[]string{"*"}, // Allow all origins
@@ -229,6 +229,20 @@ func App(options ...router.Option) *Router {
 //
 // )
 func NewCorsOptions(origins []string, methods []string, headers []string) *CORSOptions {
+	var defCorsOpts = middleware.CORSOptions{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
+	}
+	if len(origins) == 0 {
+		origins = append(origins, defCorsOpts.AllowedOrigins...)
+	}
+	if len(headers) == 0 {
+		headers = append(headers, defCorsOpts.AllowedHeaders...)
+	}
+	if len(methods) == 0 {
+		methods = append(methods, defCorsOpts.AllowedMethods...)
+	}
 	return middleware.NewCorsOptions(origins, methods, headers)
 }
 

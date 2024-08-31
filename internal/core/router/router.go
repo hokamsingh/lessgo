@@ -29,7 +29,7 @@ type Router struct {
 type Option func(*Router)
 
 // Default CORS options
-var _ = middleware.CORSOptions{
+var defCorsOpts = middleware.CORSOptions{
 	AllowedOrigins: []string{"*"},
 	AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 	AllowedHeaders: []string{"Content-Type", "Authorization"},
