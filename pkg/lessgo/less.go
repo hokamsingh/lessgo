@@ -94,6 +94,7 @@ type CORSMiddleware = middleware.CORSMiddleware
 
 type RateLimiterMiddleware = middleware.RateLimiter
 type FileUploadMiddleware = middleware.FileUploadMiddleware
+type Config = config.Config
 
 // VARS
 var (

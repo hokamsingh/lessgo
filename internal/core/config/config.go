@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -17,7 +18,20 @@ type Config map[string]string
 // environment variables from the system.
 func LoadConfig() Config {
 	if err := godotenv.Load(); err != nil {
-		log.Printf("No .env file found: %v", err)
+		log.Printf("No .env file found in current directory: %v", err)
+
+		// Attempt to find the .env file in the root directory
+		rootDir, err := findRootDir()
+		if err != nil {
+			log.Printf("Unable to determine the root directory: %v", err)
+		} else {
+			envFile := filepath.Join(rootDir, ".env")
+			if err := godotenv.Load(envFile); err != nil {
+				log.Printf("No .env file found in root directory: %v", err)
+			} else {
+				log.Printf(".env file loaded from root directory: %s", envFile)
+			}
+		}
 	}
 
 	config := make(Config)
@@ -121,4 +135,27 @@ func (c Config) FilterByPrefix(prefix string) Config {
 	}
 
 	return filtered
+}
+
+// findRootDir attempts to find the root directory by walking up from the current directory
+// until it finds a directory containing a .env file, or it reaches the system root.
+func findRootDir() (string, error) {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	for {
+		if _, err := os.Stat(filepath.Join(currentDir, ".env")); err == nil {
+			return currentDir, nil
+		}
+
+		parentDir := filepath.Dir(currentDir)
+		if parentDir == currentDir { // Reached the system root
+			break
+		}
+		currentDir = parentDir
+	}
+
+	return "", os.ErrNotExist
 }
