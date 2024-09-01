@@ -50,6 +50,8 @@ Inspired by the modular architecture of frameworks like NestJs, LessGo offers a 
    We are actively working on integrating WebSocket support to make real-time communication in your applications even easier.
 
 ---
+### 📜 Documentation 
+ https://pkg.go.dev/github.com/hokamsingh/lessgo@v1.0.2/pkg/lessgo
 
 ### 📦 Installation & Upgrade
 
