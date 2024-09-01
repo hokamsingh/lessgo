@@ -42,7 +42,7 @@ Creates a new instance of `CronScheduler`. This scheduler can be used to schedul
 **Example:**
 
 ```go
-s := scheduler.NewCronScheduler()
+s := LessGo.NewCronScheduler()
 err := s.AddJob("* * * * *", func() {
     fmt.Println("Hello, World!")
 })

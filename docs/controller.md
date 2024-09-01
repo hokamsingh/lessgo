@@ -13,7 +13,7 @@ The `Controller` interface defines the contract for all controllers in the appli
 
 ```go
 type Controller interface {
-    RegisterRoutes(r *router.Router)
+    RegisterRoutes(r *LessGo.Router)
 }
 ```
 
@@ -31,7 +31,7 @@ type BaseController struct {
 #### `BaseController.RegisterRoutes`
 
 ```go
-func (bc *BaseController) RegisterRoutes(r *router.Router)
+func (bc *BaseController) RegisterRoutes(r *LessGo.Router)
 ```
 
 The `RegisterRoutes` method provides a default implementation of the `Controller` interface's method. It can be overridden by embedding `BaseController` in another struct and defining a custom implementation.
@@ -52,9 +52,9 @@ func NewTestController(service *TestService, path string) *TestController {
     }
 }
 
-func (tc *TestController) RegisterRoutes(r *router.Router) {
+func (tc *TestController) RegisterRoutes(r *LessGo.Router) {
     tr := r.SubRouter(tc.Path)
-    tr.Get("/ping", func(ctx *router.Context) {
+    tr.Get("/ping", func(ctx *LessGo.Context) {
         ctx.Send("pong")
     })
 }
@@ -63,7 +63,7 @@ func (tc *TestController) RegisterRoutes(r *router.Router) {
 #### `RegisterModuleRoutes`
 
 ```go
-func RegisterModuleRoutes(r *router.Router, m module.IModule)
+func RegisterModuleRoutes(r *LessGo.Router, m LessGo.IModule)
 ```
 
 The `RegisterModuleRoutes` function registers routes for a module. It iterates through the module's controllers, ensuring each controller implements the `Controller` interface and then calls `RegisterRoutes` to set up the routes.
