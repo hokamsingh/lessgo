@@ -534,7 +534,7 @@ type HttpConfig = config.HttpConfig
 // - WithWriteTimeout
 // - WithTLSCertFile
 func NewHttpConfig(options ...func(*config.HttpConfig)) *config.HttpConfig {
-	return config.NewHttpConfig()
+	return config.NewHttpConfig(options...)
 }
 
 func WithReadTimeout(timeout int) func(*config.HttpConfig) {
