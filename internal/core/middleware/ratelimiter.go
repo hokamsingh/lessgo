@@ -81,7 +81,7 @@ func NewRateLimiter(limiterType RateLimiterType, config interface{}) *RateLimite
 
 	case RedisBacked:
 		ctx := context.Background()
-		cfg := config.(RedisConfig)
+		cfg := config.(*RedisConfig)
 		client := &cfg.Client
 		_, err := client.Ping(ctx).Result()
 		if err != nil {
