@@ -372,10 +372,8 @@ func (r *Router) Start(addr string, httpConfig *config.HttpConfig) error {
 		// Set maximum header size
 		MaxHeaderBytes: httpConfig.MaxHeaderSize,
 	}
-	log.Printf("not here %v %v", httpConfig.TLSCertFile, httpConfig.TLSKeyFile)
 	// Configure TLS if certificates are provided
 	if httpConfig.TLSCertFile != "" && httpConfig.TLSKeyFile != "" {
-		log.Print("Configure TLS if certificates are provided")
 		server.TLSConfig = &tls.Config{
 			MinVersion: tls.VersionTLS12, // Example of configuring TLS settings
 		}
@@ -389,7 +387,6 @@ func (r *Router) Start(addr string, httpConfig *config.HttpConfig) error {
 		}
 
 		// Start HTTPS server with TLS
-		log.Print("here")
 		err := server.ListenAndServeTLS(httpConfig.TLSCertFile, httpConfig.TLSKeyFile)
 		if err != nil {
 			log.Fatalf("HTTPS server failed: %v", err)
