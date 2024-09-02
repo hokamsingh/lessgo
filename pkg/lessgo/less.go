@@ -76,7 +76,7 @@ Here's an example of how to use the LessGo framework in a basic web server setup
 		}
 	}
 
-For more detailed documentation and examples, please visit the [official LessGo documentation](https://yourdocumentationurl.com).
+For more detailed documentation and examples, please visit the [official LessGo documentation](https://github.com/hokamsingh).
 
 # Package Structure
 

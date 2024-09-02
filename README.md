@@ -5,72 +5,53 @@
 ![Version](https://img.shields.io/badge/version-v1.0.2-blue)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hokamsingh/lessgo)](https://goreportcard.com/report/github.com/hokamsingh/lessgo)
 
-## 🛠️ LessGo Framework Release
+**🚀 LessGo v1.0.2 - The High-Performance Minimal Go Web Framework**
 
-We are excited to announce the latest release of the **LessGo** framework! This release introduces several powerful features and enhancements to make your Go development experience even more robust and efficient.
+Welcome to **LessGo** ⚡—a high-performance, minimal Go web framework crafted for building scalable, maintainable, and modern applications. LessGo empowers developers with advanced features like dynamic configuration management, inbuilt error handling, robust data validation, and Dependency Injection (DI).
 
-### 🚀 New Features
+Inspired by the modular architecture of frameworks like NestJs, LessGo offers a flexible structure that allows you to build your applications your way. Whether you prefer a strict controller-service-module architecture or a more fluid design, LessGo has you covered. With built-in support for CORS, CSRF, XSS protection, logging, error handling, rate limiting, caching, and job scheduling, LessGo makes it easier to develop secure, efficient, and performant web applications.
 
-- **Enhanced Dependency Injection (DI)**:
-  - **Conditional Bindings**: Register dependencies based on specific conditions.
-  - **Scoped Services**: Manage services with different lifetimes and scopes.
-  - **Named Dependencies**: Support for naming dependencies for more granular control.
+### ✨ Key Features:
 
-- **Dynamic Configuration Management**:
-  - **Factory Pattern**: Implement dynamic configuration management with factories to handle various application environments and requirements.
+1. **🔄 Concurrency & Task Management**  
+   LessGo includes a powerful task manager that allows you to run tasks in parallel or sequence, giving you full control over task management and program flow. We are committed to enhancing its robustness and extensibility.
 
-- **Inbuilt Error Handling**:
-  - **Custom Error Responses**: Integrate a flexible error handling system that returns appropriate HTTP responses based on the error type.
-  - **Detailed Logging**: Capture detailed error logs and stack traces for better debugging.
+2. **⚙️ Dynamic Configuration Management**  
+   With built-in support for multiple environments (development, production, testing), LessGo simplifies configuration management. It provides a user-friendly API for working with environment variables, offering validation and easy access to typed values like numbers and booleans.
 
-- **Job Scheduler Integration**:
-  - **Built-in Scheduler**: Utilize an advanced job scheduling library for managing periodic tasks and background jobs seamlessly.
+3. **🔧 LessGo Context**  
+   The LessGo Context is a powerful abstraction over the request and response objects. It simplifies API development by providing methods for handling headers, cookies, query parameters, JSON parsing, and more. Error management, HTTP redirection, and file attachments are made effortless.
 
-- **JSON Response Handling**:
-  - **Automatic JSON Parsing**: Simplify the process of parsing and responding with JSON data.
-  - **Custom JSON Encoding**: Encode and decode JSON responses with integrated error handling.
+4. **🧩 Flexible Dependency Injection (DI)**  
+   LessGo offers basic DI functionality that we're continuously improving. You can choose whether to bind your entire application into a single container or work with a more traditional approach, giving you flexibility in how you manage dependencies.
 
-- **Advanced Data Validation**:
-  - **Strict Validation**: Ensure data integrity by validating incoming requests against predefined models.
-  - **Dynamic Key Checks**: Verify that all required fields are present in the request payload.
+5. **🚀 App Initialization**  
+   The App is the core of LessGo, initializing various configurations and middleware. It exposes the main server with a simple `Listen` method to start your application.
 
-- **🛡️ CSRF Protection Middleware**:
-  - **`LessGo.WithCsrf()`**: Integrated Cross-Site Request Forgery (CSRF) protection to safeguard your applications against unauthorized actions.
+6. **⏰ Job Scheduling**  
+   LessGo supports job scheduling, leveraging the powerful Cron package to handle recurring tasks seamlessly.
 
-- **🔒 XSS Protection Middleware**:
-  - **`LessGo.WithXss()`**: Built-in Cross-Site Scripting (XSS) protection to prevent malicious script injections.
+7. **🔒 Comprehensive Middleware**  
+   LessGo comes with essential built-in middleware, including CORS, JSON parser, cookie parser, CSRF and XSS protection, caching, file uploads, and rate limiting (both in-memory and Redis-backed).
 
-- **⚡ Caching Middleware**:
-  - **`LessGo.WithCaching("localhost:6379", 5*time.Minute)`**: Redis-based caching middleware for improved performance with configurable cache expiration
-- **Response Handling**
-  - Enhanced response handling to ensure multiple responses are not sent from the same context, preventing unexpected behaviors and potential crashes.
-  
-- **Template Rendering**
-  - Introduced support for rendering templates dynamically from a specified directory, reducing the need to manually list each template file.
+8. **🌐 Powerful Router**  
+   The built-in router handles different HTTP methods with custom handlers, supporting method chaining, sub-routers, and custom middleware.
 
-- **Middleware Improvements**
-  - Refined existing middleware to ensure seamless integration and performance.
-  - Addressed potential edge cases and improved overall robustness.
+9. **📦 Controller Interface**  
+   Controllers in LessGo allow you to create dedicated routers for specific endpoints, integrating seamlessly with the service layer for efficient request handling.
 
-## ⚙️ Migration Notes
+10. **🔍 Service Layer**  
+   The Service interface in LessGo is designed for encapsulating business logic. It easily binds to databases and other dependencies, streamlining the development process.
 
-- The new security middlewares (`WithCsrf` and `WithXss`) are optional but highly recommended for applications that handle sensitive data.
-- The caching middleware requires a running Redis instance. Ensure your Redis server is properly configured and accessible from your application.
+11. **🔗 Modular Design**  
+   Modules in LessGo bring together controllers and services, managing routes and handlers in a cohesive manner.
 
-## 🛡️ Security
+12. **💬 WebSocket Support (Upcoming)**  
+   We are actively working on integrating WebSocket support to make real-time communication in your applications even easier.
 
-- Security is a top priority for us, and this release emphasizes that with the introduction of CSRF and XSS protection middlewares. We strongly recommend enabling these features to safeguard your applications against common web vulnerabilities.
-
-
-### 📚 Documentation & Examples
-
-- **Enhanced Documentation**: Comprehensive guides and examples to help you get started with the new features and integrations.
-- **Code Examples**: Practical examples demonstrating how to use the new features in real-world applications.
-
-### 🛠️ Improvements & Fixes
-
-- **Performance Enhancements**: Optimizations for better performance and reduced resource usage.
-- **Bug Fixes**: Various bug fixes and stability improvements to ensure a smoother development experience.
+---
+### 📜 Documentation 
+ https://pkg.go.dev/github.com/hokamsingh/lessgo@v1.0.2/pkg/lessgo
 
 ### 📦 Installation & Upgrade
 
@@ -100,14 +81,12 @@ Make sure to try out the CLI to streamline your project setup and start building
 
 We would like to thank our contributors and community for their support and feedback. Your contributions have been invaluable in shaping the LessGo framework.
 
-## License
+### 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
----
+For any questions, issues, or feedback, please visit our [GitHub repository](https://github.com/hokamsingh/lessgo) or join our community discussions.
 
-For any questions, issues, or feedback, please visit our [GitHub repository](https://github.com/hokamsingh/lessgo) or join our [community discussions](#).
+**Happy coding!** 🎉
 
-Happy coding!
-
----
+--- 
