@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"github.com/hokamsingh/lessgo/internal/core/config"
 	"github.com/hokamsingh/lessgo/internal/core/di"
 	"github.com/hokamsingh/lessgo/internal/core/router"
 )
@@ -20,6 +21,6 @@ func NewApp(router *router.Router, container *di.Container) *App {
 }
 
 // Start the HTTP server on the specified address
-func (app *App) Start(addr string) error {
-	return app.Router.Listen(addr)
+func (app *App) Start(addr string, httpConfig *config.HttpConfig) error {
+	return app.Router.Listen(addr, httpConfig)
 }

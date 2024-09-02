@@ -1,6 +1,7 @@
 package router
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
+	"github.com/hokamsingh/lessgo/internal/core/config"
 	"github.com/hokamsingh/lessgo/internal/core/context"
 	"github.com/hokamsingh/lessgo/internal/core/middleware"
 	"github.com/hokamsingh/lessgo/internal/utils"
@@ -354,7 +356,7 @@ func (r *Router) AddRoute(path string, handler CustomHandler) {
 //	if err != nil {
 //		log.Fatalf("Server failed: %v", err)
 //	}
-func (r *Router) Start(addr string) error {
+func (r *Router) Start(addr string, httpConfig *config.HttpConfig) error {
 	// Apply middlewares
 	finalHandler := http.Handler(r.Mux)
 	for _, m := range r.middleware {
@@ -364,21 +366,46 @@ func (r *Router) Start(addr string) error {
 	server := &http.Server{
 		Addr:         addr,
 		Handler:      finalHandler,
-		ReadTimeout:  5 * time.Second,   // Defaults timeout
-		WriteTimeout: 10 * time.Second,  // Defaults timeout
-		IdleTimeout:  120 * time.Second, // Defaults timeout
+		ReadTimeout:  time.Duration(httpConfig.ReadTimeout) * time.Second,  // Set read timeout
+		WriteTimeout: time.Duration(httpConfig.WriteTimeout) * time.Second, // Set write timeout
+		IdleTimeout:  time.Duration(httpConfig.IdleTimeout) * time.Second,  // Set idle timeout
+		// Set maximum header size
+		MaxHeaderBytes: httpConfig.MaxHeaderSize,
 	}
 
+	// Configure TLS if certificates are provided
+	if httpConfig.TLSCertFile != "" && httpConfig.TLSKeyFile != "" {
+		server.TLSConfig = &tls.Config{
+			MinVersion: tls.VersionTLS12, // Example of configuring TLS settings
+		}
+
+		// Enable HSTS if configured
+		if httpConfig.Security.EnableHSTS {
+			finalHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+				finalHandler.ServeHTTP(w, r)
+			})
+		}
+
+		// Start HTTPS server with TLS
+		err := server.ListenAndServeTLS(httpConfig.TLSCertFile, httpConfig.TLSKeyFile)
+		if err != nil {
+			log.Fatalf("HTTPS server failed: %v", err)
+		}
+		return err
+	}
+
+	// Start HTTP server if TLS is not configured
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Fatalf("Server failed: %v", err)
+		log.Fatalf("HTTP server failed: %v", err)
 	}
 	return err
 }
 
 // Start http server
-func (r *Router) Listen(addr string) error {
-	return r.Start(addr)
+func (r *Router) Listen(addr string, httpConfig *config.HttpConfig) error {
+	return r.Start(addr, httpConfig)
 }
 
 // HTTPError represents an error with an associated HTTP status code.

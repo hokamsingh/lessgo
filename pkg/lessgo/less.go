@@ -491,3 +491,97 @@ func ConvertToBytes(size int64, unit SizeUnit) int64 {
 func NewRedisClient(redisAddr string) *redis.Client {
 	return utils.NewRedisClient(redisAddr)
 }
+
+type HttpConfig = config.HttpConfig
+
+// NewHttpConfig creates a new HttpConfig instance with optional configuration options.
+// This function accepts a variadic number of option functions that allow customization
+// of the HttpConfig fields. If no options are provided, it will create a configuration
+// with default values for all fields.
+//
+// Default values:
+// - ReadTimeout: 10 seconds
+// - WriteTimeout: 10 seconds
+// - IdleTimeout: 60 seconds
+// - MaxHeaderSize: 1 MB (1048576 bytes)
+// - TLSCertFile: "" (empty string, no certificate file)
+// - TLSKeyFile: "" (empty string, no key file)
+// - Security.EnableHSTS: false
+// - Security.ContentSecurityPolicy: "" (empty string, no policy)
+// - Session.Store: "memory" (default session store)
+// - Session.Timeout: 3600 seconds (1 hour)
+//
+// The options functions should be used to set various fields of the HttpConfig,
+// such as timeouts, TLS certificates, and security settings. Each option function
+// takes a pointer to HttpConfig and modifies it accordingly.
+//
+// Example usage:
+//
+//	cfg := LessGo.NewHttpConfig(
+//	  LessGo.WithReadTimeout(30),
+//	  LessGo.WithWriteTimeout(30),
+//	  LessGo.WithTLSCertFile("/path/to/cert.pem"),
+//	)
+//
+// Parameters:
+// - options: A variadic number of option functions that modify the HttpConfig instance.
+//
+// Returns:
+// - *HttpConfig: A pointer to the newly created HttpConfig instance with applied options.
+//
+// See also:
+// - WithReadTimeout
+// - WithWriteTimeout
+// - WithTLSCertFile
+func NewHttpConfig(options ...func(*config.HttpConfig)) *config.HttpConfig {
+	return config.NewHttpConfig()
+}
+
+func WithReadTimeout(timeout int) func(*config.HttpConfig) {
+	return config.WithReadTimeout(timeout)
+}
+
+// Wrapper for WithWriteTimeout
+func WithWriteTimeout(timeout int) func(*HttpConfig) {
+	return config.WithWriteTimeout(timeout)
+}
+
+// Wrapper for WithIdleTimeout
+func WithIdleTimeout(timeout int) func(*HttpConfig) {
+	return config.WithIdleTimeout(timeout)
+}
+
+// Wrapper for WithMaxHeaderSize
+func WithMaxHeaderSize(size int) func(*HttpConfig) {
+	return config.WithMaxHeaderSize(size)
+}
+
+// Wrapper for WithTLSCertFile
+func WithTLSCertFile(certFile string) func(*HttpConfig) {
+	return config.WithTLSCertFile(certFile)
+}
+
+// Wrapper for WithTLSKeyFile
+func WithTLSKeyFile(keyFile string) func(*HttpConfig) {
+	return config.WithTLSKeyFile(keyFile)
+}
+
+// Wrapper for WithHSTS
+func WithHSTS(enabled bool) func(*HttpConfig) {
+	return config.WithHSTS(enabled)
+}
+
+// Wrapper for WithContentSecurityPolicy
+func WithContentSecurityPolicy(policy string) func(*HttpConfig) {
+	return config.WithContentSecurityPolicy(policy)
+}
+
+// Wrapper for WithSessionStore
+func WithSessionStore(store string) func(*HttpConfig) {
+	return config.WithSessionStore(store)
+}
+
+// Wrapper for WithSessionTimeout
+func WithSessionTimeout(timeout int) func(*HttpConfig) {
+	return config.WithSessionTimeout(timeout)
+}
