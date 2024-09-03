@@ -372,7 +372,6 @@ func (r *Router) Start(addr string, httpConfig *config.HttpConfig) error {
 		// Set maximum header size
 		MaxHeaderBytes: httpConfig.MaxHeaderSize,
 	}
-
 	// Configure TLS if certificates are provided
 	if httpConfig.TLSCertFile != "" && httpConfig.TLSKeyFile != "" {
 		server.TLSConfig = &tls.Config{

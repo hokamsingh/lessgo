@@ -2,10 +2,10 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/hokamsingh/lessgo)](https://pkg.go.dev/github.com/hokamsingh/lessgo)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/hokamsingh/lessgo-cli)](https://golang.org/dl/)
-![Version](https://img.shields.io/badge/version-v1.0.2-blue)
+![Version](https://img.shields.io/badge/version-v1.0.4-blue)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hokamsingh/lessgo)](https://goreportcard.com/report/github.com/hokamsingh/lessgo)
 
-**🚀 LessGo v1.0.2 - The High-Performance Minimal Go Web Framework**
+**🚀 LessGo v1.0.4 - The High-Performance Minimal Go Web Framework**
 
 Welcome to **LessGo** ⚡—a high-performance, minimal Go web framework crafted for building scalable, maintainable, and modern applications. LessGo empowers developers with advanced features like dynamic configuration management, inbuilt error handling, robust data validation, and Dependency Injection (DI).
 
