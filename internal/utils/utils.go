@@ -3,11 +3,11 @@ package utils
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -151,7 +151,16 @@ func HashPassword(data string, salt string, length int) (string, error) {
 	if len(salt) == 0 {
 		return "", errors.New("salt cannot be empty")
 	}
-	hashed := fmt.Sprintf("%x", data+salt) // Placeholder, replace with real hash function
+	// Combine data and salt
+	combined := data + salt
+	// Create a SHA-256 hash
+	hash := sha256.Sum256([]byte(combined))
+	// Convert the hash to a hexadecimal string
+	hashed := hex.EncodeToString(hash[:])
+	// Truncate the hash to the desired length
+	if length > len(hashed) {
+		length = len(hashed)
+	}
 	return hashed[:length], nil
 }
 
@@ -221,14 +230,21 @@ func Sleep(ms int64) {
 func Retryable(fn func() error, retries int, backoffType string, delay time.Duration) error {
 	var err error
 	for i := 0; i <= retries; i++ {
-		err = fn()
-		if err == nil {
+		if err = fn(); err == nil {
 			return nil
 		}
-		if backoffType == "exponential" {
-			time.Sleep(delay * time.Duration(math.Pow(2, float64(i))))
-		} else {
-			time.Sleep(delay)
+		// Calculate the delay based on backoff type
+		var sleepDuration time.Duration
+		switch backoffType {
+		case "exponential":
+			sleepDuration = delay * time.Duration(1<<i) // Equivalent to 2^i
+		case "linear":
+			sleepDuration = delay * time.Duration(i+1)
+		default:
+			sleepDuration = delay
+		}
+		if i < retries {
+			time.Sleep(sleepDuration)
 		}
 	}
 	return err
