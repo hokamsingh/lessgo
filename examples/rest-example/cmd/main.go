@@ -16,6 +16,7 @@ import (
 	LessGo "github.com/hokamsingh/lessgo/pkg/lessgo"
 )
 
+// main
 func main() {
 	// Load Configuration
 	cfg := LessGo.LoadConfig()
