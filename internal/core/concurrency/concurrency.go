@@ -14,7 +14,7 @@ type Task struct {
 }
 
 // TaskFunc defines the type for the task function that returns a result and an error.
-// @callback TaskFunc
+// @callback TaskFunc 
 // @param {context.Context} ctx - The context for the task, used for cancellation and deadlines.
 // @returns {interface{}, error} The result of the task and an error, if any.
 //
