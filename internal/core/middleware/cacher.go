@@ -18,6 +18,7 @@ type Caching struct {
 	cacheControl bool
 }
 
+// new caching
 func NewCaching(client *redis.Client, ttl time.Duration, cacheControl bool) *Caching {
 	return &Caching{
 		client:       client,
