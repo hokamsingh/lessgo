@@ -456,7 +456,7 @@ const Parallel = 0
 const Sequential = 1
 
 func NewTaskBuilder(mode int) *TaskBuilder {
-	return concurrency.NewTaskBuilder(concurrency.ExecutionMode(mode))
+	return concurrency.NewTaskBuilder(concurrency.ExecutionMode(mode), 0)
 }
 
 type SizeUnit string

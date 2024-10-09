@@ -2,7 +2,6 @@ package concurrency
 
 import (
 	"context"
-	"errors"
 	"sync"
 )
 

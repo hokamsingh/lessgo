@@ -23,7 +23,7 @@ const (
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
-	
+
 	// Maximum undelivered messages
 	maxUndeliveredMsg = 100
 )
@@ -44,73 +44,73 @@ var upgrader = websocket.Upgrader{
 
 // Client represents a connection.
 type Client struct {
-	name string
-	id   string          // Unique client ID for reconnection
-	hub  *Hub            // Reference to the Hub
-	conn *websocket.Conn // WebSocket connection
-	send chan []byte     // Buffered channel for outbound messages
+	name           string
+	id             string          // Unique client ID for reconnection
+	hub            *Hub            // Reference to the Hub
+	conn           *websocket.Conn // WebSocket connection
+	send           chan []byte     // Buffered channel for outbound messages
 	undeliveredMsg [][]byte        // Queue for undelivered messages
 }
 
 func (c *Client) addUndeliveredMsg(message []byte) {
-    if len(c.undeliveredMsg) >= maxUndeliveredMsg {
-        // Deleting the oldest message to free up space
-        c.undeliveredMsg = c.undeliveredMsg[1:]
-    }
-    c.undeliveredMsg = append(c.undeliveredMsg, message)
+	if len(c.undeliveredMsg) >= maxUndeliveredMsg {
+		// Deleting the oldest message to free up space
+		c.undeliveredMsg = c.undeliveredMsg[1:]
+	}
+	c.undeliveredMsg = append(c.undeliveredMsg, message)
 }
 
 // readPump listens for incoming messages.
 func (c *Client) readPump() {
-    defer func() {
-        c.hub.unregister <- c
-        c.conn.Close()
-    }()
-    c.conn.SetReadLimit(maxMessageSize)
-    c.conn.SetReadDeadline(time.Now().Add(pongWait))
-    c.conn.SetPongHandler(func(string) error {
-        c.conn.SetReadDeadline(time.Now().Add(pongWait))
-        return nil
-    })
+	defer func() {
+		c.hub.unregister <- c
+		c.conn.Close()
+	}()
+	c.conn.SetReadLimit(maxMessageSize)
+	c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.conn.SetPongHandler(func(string) error {
+		c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
 
-    for {
-        _, message, err := c.conn.ReadMessage()
-        if err != nil {
-            if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-                log.Printf("error: %v", err)
-            }
-            break
-        }
+	for {
+		_, message, err := c.conn.ReadMessage()
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
+			break
+		}
 
-        message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-        switch {
-        case bytes.HasPrefix(message, []byte("join_room:")):
-            roomName := string(message[len("join_room:"):])
-            c.hub.HandleJoinRoom(c, roomName)
-            c.send <- []byte("join_room_success:" + roomName)
+		switch {
+		case bytes.HasPrefix(message, []byte("join_room:")):
+			roomName := string(message[len("join_room:"):])
+			c.hub.HandleJoinRoom(c, roomName)
+			c.send <- []byte("join_room_success:" + roomName)
 
-        case bytes.HasPrefix(message, []byte("room_message:")):
-            roomNameAndMessage := bytes.SplitN(message[len("room_message:"):], []byte(" "), 2)
-            roomName := string(roomNameAndMessage[0])
-            roomMessage := roomNameAndMessage[1]
-            c.hub.handleRoomBroadcast(roomName, roomMessage)
+		case bytes.HasPrefix(message, []byte("room_message:")):
+			roomNameAndMessage := bytes.SplitN(message[len("room_message:"):], []byte(" "), 2)
+			roomName := string(roomNameAndMessage[0])
+			roomMessage := roomNameAndMessage[1]
+			c.hub.handleRoomBroadcast(roomName, roomMessage)
 
-        case bytes.HasPrefix(message, []byte("leave_room:")):
-            roomName := string(message[len("leave_room:"):])
-            c.hub.handleLeaveRoom(c, roomName)
-            c.send <- []byte("leave_room_success:" + roomName)
+		case bytes.HasPrefix(message, []byte("leave_room:")):
+			roomName := string(message[len("leave_room:"):])
+			c.hub.handleLeaveRoom(c, roomName)
+			c.send <- []byte("leave_room_success:" + roomName)
 
-        case bytes.HasPrefix(message, []byte("private_message:")):
-            receiverAndMessage := bytes.SplitN(message[len("private_message:"):], []byte(" "), 2)
-            receiver := string(receiverAndMessage[0])
-            privateMessage := receiverAndMessage[1]
-            c.hub.handlePrivateMessage(receiver, privateMessage)
+		case bytes.HasPrefix(message, []byte("private_message:")):
+			receiverAndMessage := bytes.SplitN(message[len("private_message:"):], []byte(" "), 2)
+			receiver := string(receiverAndMessage[0])
+			privateMessage := receiverAndMessage[1]
+			c.hub.handlePrivateMessage(receiver, privateMessage)
 
-        default:
-            c.hub.broadcast <- message
-        }
-    }
+		default:
+			c.hub.broadcast <- message
+		}
+	}
 }
 
 // writePump sends messages to the client.
@@ -123,7 +123,7 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case message, ok := <-c.send:
-			
+
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
@@ -133,7 +133,7 @@ func (c *Client) writePump() {
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				// If the connection is broken, add the message to the unread queue
-				c.undeliveredMsg = c.addUndeliveredMsg(message)
+				c.addUndeliveredMsg(message)
 				return
 			}
 			w.Write(message)
@@ -253,11 +253,11 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		// New client connection
 		clientID = uuid.NewString()
 		client = &Client{
-			hub:  hub,
-			conn: conn,
-			send: make(chan []byte, 256),
-			id:   clientID,
-			name: "root",
+			hub:            hub,
+			conn:           conn,
+			send:           make(chan []byte, 256),
+			id:             clientID,
+			name:           "root",
 			undeliveredMsg: [][]byte{},
 		}
 	}
