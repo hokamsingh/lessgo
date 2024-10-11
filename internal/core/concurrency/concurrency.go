@@ -138,7 +138,12 @@ func (tm *TaskManager) runParallel(ctx context.Context) ([]interface{}, error) {
 
 	// Submit tasks to the worker pool
 	for _, task := range tm.tasks {
-		pool.Submit(task)
+		select {
+		case <-ctx.Done(): // Check if context is done before submitting
+			return nil, ctx.Err()
+		default:
+			pool.Submit(task)
+		}
 	}
 
 	// Collect results
@@ -160,6 +165,7 @@ func (tm *TaskManager) runParallel(ctx context.Context) ([]interface{}, error) {
 
 	// Stop the worker pool and wait for results
 	pool.Stop()
+
 	close(errChan)
 
 	// Check for errors
