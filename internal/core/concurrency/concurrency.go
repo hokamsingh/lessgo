@@ -130,7 +130,12 @@ func (tm *TaskManager) runParallel(ctx context.Context) ([]interface{}, error) {
 	// Submit tasks to the worker pool
 	for i, task := range tm.tasks {
 		go func(index int, task *Task) {
-			pool.Submit(task, index)
+			select {
+			case <-ctx.Done():
+				errChan <- ctx.Err()
+			default:
+				pool.Submit(task, index)
+			}
 		}(i, task)
 	}
 
