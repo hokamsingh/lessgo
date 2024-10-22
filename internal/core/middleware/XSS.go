@@ -1,17 +1,22 @@
 package middleware
 
 import (
-	"html"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
 type XSSProtection struct{}
 
+// Creates a new middleware for XSS protection
 func NewXSSProtection() *XSSProtection {
 	return &XSSProtection{}
 }
 
+// Regular expression to detect potentially harmful XSS patterns, including encoded variants
+var unsafePattern = regexp.MustCompile(`(?i)<script.*?>|javascript:|data:text/html|onerror=|onload=|onclick=|<iframe>|<img src=|<object>|<embed>|eval\(|%3Cscript%3E|&#60;script&#62;|&#x3C;script&#x3E;|&lt;script&gt;`)
+
+// Middleware to handle requests and check for XSS attacks
 func (xss *XSSProtection) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if containsXSS(r) {
@@ -23,7 +28,7 @@ func (xss *XSSProtection) Handle(next http.Handler) http.Handler {
 	})
 }
 
-// containsXSS checks various parts of the request for XSS payloads.
+// containsXSS checks various parts of the request for XSS payloads
 func containsXSS(r *http.Request) bool {
 	// Check URL query parameters
 	for _, values := range r.URL.Query() {
@@ -45,14 +50,14 @@ func containsXSS(r *http.Request) bool {
 		}
 	}
 
-	// Check cookies
+	// Check cookie values
 	for _, cookie := range r.Cookies() {
 		if isXSS(cookie.Value) {
 			return true
 		}
 	}
 
-	// Check headers
+	// Check header values
 	for _, values := range r.Header {
 		for _, value := range values {
 			if isXSS(value) {
@@ -64,56 +69,8 @@ func containsXSS(r *http.Request) bool {
 	return false
 }
 
-// isXSS checks if a string contains potentially harmful XSS payloads.
+// isXSS checks if a string contains potentially harmful XSS payloads using regular expressions
 func isXSS(value string) bool {
-	// Define a more comprehensive list of unsafe patterns
-	unsafePatterns := []string{
-		"<script>",
-		"javascript:",
-		"data:text/html",
-		"vbscript:",
-		"mocha:",
-		"onerror=",
-		"onload=",
-		"onclick=",
-		"onmouseover=",
-		"onfocus=",
-		"onchange=",
-		"onsubmit=",
-		"onreset=",
-		"onabort=",
-		"<iframe>",
-		"<img src=",
-		"<object>",
-		"<embed>",
-		"<style>",
-		"<link>",
-		"<meta>",
-		"document.cookie",
-		"window.location",
-		"self.location",
-		"eval(",
-		"<!--",
-		"--!>",
-		"<![CDATA[",
-		"svg/onload=",
-		"math:xmlns",
-		"data:",
-		"ftp://",
-		"file://",
-		"%3Cscript%3E",
-		"&#60;script&#62;",
-		"&#x3C;script&#x3E;",
-	}
-
 	valueLower := strings.ToLower(value)
-	for _, pattern := range unsafePatterns {
-		if strings.Contains(valueLower, pattern) {
-			return true
-		}
-	}
-
-	// Use HTML escaping as an additional check
-	escaped := html.EscapeString(value)
-	return escaped != value
+	return unsafePattern.MatchString(valueLower)
 }
